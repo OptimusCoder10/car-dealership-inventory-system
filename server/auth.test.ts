@@ -51,4 +51,18 @@ describe('authentication', () => {
     expect((await request(context.app).post('/api/auth/register').send({ ...person, email: 'AVERY@example.com' })).status).toBe(409);
     expect((await request(context.app).post('/api/auth/login').send({ email: person.email, password: 'wrong-password' })).status).toBe(401);
   });
+
+  it('uses the current configured admin password after a restart', async () => {
+    const databasePath = join(directory, 'inventory.db');
+    context.db.close();
+    context = createApp({ databasePath, jwtSecret: 'test-secret', admin: { name: 'Inventory lead', email: 'admin@example.com', password: 'first-password' } });
+    expect((await request(context.app).post('/api/auth/login').send({ email: 'admin@example.com', password: 'first-password' })).status).toBe(200);
+
+    context.db.close();
+    context = createApp({ databasePath, jwtSecret: 'test-secret', admin: { name: 'Inventory lead', email: 'admin@example.com', password: 'changed-password' } });
+    expect((await request(context.app).post('/api/auth/login').send({ email: 'admin@example.com', password: 'first-password' })).status).toBe(401);
+    const login = await request(context.app).post('/api/auth/login').send({ email: 'admin@example.com', password: 'changed-password' });
+    expect(login.status).toBe(200);
+    expect(login.body.user.role).toBe('admin');
+  });
 });
