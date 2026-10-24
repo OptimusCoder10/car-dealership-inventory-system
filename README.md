@@ -21,7 +21,11 @@ A purchase records an inventory change and reduces stock by one. **This demo doe
 
 ![Inventory overview](docs/screenshots/inventory-overview.jpg)
 
+![Buyer overview with live availability and starting price](docs/screenshots/buyer-overview.jpg)
+
 ![Vehicle cards with stock state and admin actions](docs/screenshots/vehicle-cards.jpg)
+
+![Buyer vehicle cards](docs/screenshots/buyer-cards.jpg)
 
 ![Sold-out vehicle with purchase disabled](docs/screenshots/sold-out-state.jpg)
 
@@ -100,10 +104,17 @@ Vehicle input example:
 
 The stock history and guarded final-unit purchase are deliberately practical additions. They address the moments where a dealership employee or buyer needs trust in the number on the screen. The interface uses plain labels, visible availability, clear confirmation, and recovery messages so the system feels considerate rather than decorative.
 
+### Design choices
+
+- The inventory summary and search sit near the top so a buyer or employee can get to the current stock quickly. The buyer sees the lowest price among vehicles actually in stock; the admin sees the listed value of available units.
+- The same card answers different questions by role. Buyers see an available purchase action or a clear unavailable state. Admins see restock and edit first, with stock history and removal as separate decisions.
+- Category-based illustrations give the collection character without implying that they are photos of the exact listed cars. Stock counts and prices remain text rather than information carried only by color or decoration.
+- The language stays honest: a purchase records stock and a receipt in this demo, and the confirmation says no payment is taken.
+
 ## My AI Usage
 
 I used **OpenAI Codex (GPT-6)** extensively as a development partner for this assignment. I supplied the assignment, job description, deadline, privacy constraints, and a direction to build something distinctive and human-centered. Codex helped map requirements, draft tests and implementation, design the original interface, debug the browser workflow, and write documentation. The Git commits that contain AI-assisted work carry a `Co-authored-by` trailer.
 
-The tests and browser review were important checks on the generated work. They exposed details that needed correction, including totals that initially followed the filtered list and purchase copy that could imply payment was taken. Those were changed before submission. AI made it possible to cover the full stack quickly, but it did not remove the need to check behavior, state the limits clearly, and understand the tradeoffs. I would explain the SQLite choice, role model, conditional purchase update, test history, and UI decisions in an interview.
+The tests and browser review were important checks on the generated work. They exposed details that needed correction, including totals that initially followed the filtered list, purchase copy that could imply payment was taken, and an adventure vehicle drawn with a sedan silhouette. Those were changed before submission. AI made it possible to cover the full stack quickly, but it did not remove the need to check behavior, state the limits clearly, and understand the tradeoffs. I would explain the SQLite choice, role model, conditional purchase update, test history, and UI decisions in an interview.
 
 The required raw AI conversation record or public chat link is in [PROMPTS.md](PROMPTS.md). The assignment PDF and job description stay outside this repository; the local handover note is Git ignored.

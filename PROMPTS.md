@@ -149,3 +149,43 @@ The required features, browser screenshots, README draft, and test report are in
 The code and documentation commits are ready, and the private assignment files are still outside Git. I’m generating the required public chat link for `PROMPTS.md`; once it’s recorded, I’ll make the final privacy check and publish the commits.
 ~~~
 
+## UI refinement follow-up — 2026-10-24
+
+The following are verbatim message bodies from the follow-up in which the user authorized the UI work. Tool calls and outputs are omitted.
+
+### User
+
+~~~text
+ok how to go about it?
+~~~
+
+### User
+
+~~~text
+feel free to do
+~~~
+
+### Assistant
+
+~~~text
+I’ll make a focused UI pass now. I’m using the skill installer to bring Impeccable into this project, then I’ll review Drivewell’s current screens, build a distinct visual direction, and check the buyer and admin flows before showing you the result.
+~~~
+
+### Assistant
+
+~~~text
+I’m keeping this as a reviewable design branch. The first pass will bring search and stock information forward, give the vehicles more character, and make admin actions easier to distinguish from buying. I’ll preserve the working API flows.
+~~~
+
+### Assistant
+
+~~~text
+The admin view now puts live stock and filters near the top, and the cards give stock work a clear primary action. I’m checking the buyer view and the small screen layout next, then I’ll run the project checks and save the design rationale.
+~~~
+
+### Assistant
+
+~~~text
+The buyer flow now shows the lowest in-stock price, keeps sold-out vehicles visible, and narrows correctly when a filter is used. I also found a small illustration issue during review: the adventure vehicle was using the sedan shape, so I corrected its category cue and refreshed the screenshots.
+~~~
+
