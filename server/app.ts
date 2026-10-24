@@ -36,7 +36,7 @@ export interface AppContext {
 export function createApp(options: { databasePath: string; jwtSecret: string; admin?: { name: string; email: string; password: string } }): AppContext {
   const app = express();
   const db = new DatabaseSync(options.databasePath);
-  db.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL;');
+  db.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;');
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,

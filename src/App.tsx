@@ -1,0 +1,307 @@
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+
+type User = { id: string; name: string; email: string; role: 'buyer' | 'admin' };
+type Session = { user: User; token: string };
+type Vehicle = { id: string; make: string; model: string; category: string; price: number; quantity: number; createdAt: string; updatedAt: string };
+type VehicleInput = Pick<Vehicle, 'make' | 'model' | 'category' | 'price' | 'quantity'>;
+type StockEvent = { id: string; type: string; delta: number; quantityAfter: number; createdAt: string };
+type Receipt = { id: string; vehicleId: string; quantity: number; price: number; remainingQuantity: number; purchasedAt: string };
+type Filters = { make: string; model: string; category: string; minPrice: string; maxPrice: string };
+
+const emptyFilters: Filters = { make: '', model: '', category: '', minPrice: '', maxPrice: '' };
+const rupees = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+
+function savedSession(): Session | null {
+  try { return JSON.parse(localStorage.getItem('drivewell-session') ?? 'null') as Session | null; }
+  catch { return null; }
+}
+
+async function api<T>(path: string, token?: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(path, {
+    ...init,
+    headers: { ...(init?.body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...init?.headers },
+  });
+  const body = response.status === 204 ? {} : await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error?.message ?? 'Something went wrong. Please try again.');
+  return body as T;
+}
+
+function Logo({ light = false }: { light?: boolean }) {
+  return <div className={`brand ${light ? 'brand-light' : ''}`} aria-label="Drivewell">
+    <span className="brand-mark" aria-hidden="true"><span /></span>
+    <span>drivewell<span className="brand-period">.</span></span>
+  </div>;
+}
+
+function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: boolean }) {
+  const colors = ['#476a80', '#a8755a', '#718472', '#6b688f', '#b99153', '#51626c'];
+  const index = [...vehicle.model].reduce((sum, character) => sum + character.charCodeAt(0), 0) % colors.length;
+  const color = colors[index];
+  return <div className={`vehicle-art ${large ? 'vehicle-art-large' : ''}`} style={{ '--car-color': color } as React.CSSProperties} aria-hidden="true">
+    <div className="art-orbit art-orbit-one" /><div className="art-orbit art-orbit-two" />
+    <svg viewBox="0 0 520 235" role="presentation">
+      <defs>
+        <linearGradient id={`body-${vehicle.id}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor={color} /><stop offset="1" stopColor="#263646" /></linearGradient>
+        <linearGradient id={`glass-${vehicle.id}`} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#d3e2e9" /><stop offset="1" stopColor="#8ea7b5" /></linearGradient>
+      </defs>
+      <ellipse cx="262" cy="199" rx="210" ry="18" fill="#66757d" opacity=".14" />
+      <path d="M67 145 Q76 127 112 124 L159 119 Q182 75 230 69 L338 69 Q386 74 410 119 L453 127 Q473 132 480 148 L477 179 Q474 188 463 189 L69 189 Q56 185 56 175 L59 156 Q60 149 67 145Z" fill={`url(#body-${vehicle.id})`} />
+      <path d="M182 118 Q203 81 233 79 L288 79 L288 119Z M299 79 L337 79 Q373 83 392 119 L299 119Z" fill={`url(#glass-${vehicle.id})`} />
+      <path d="M289 79 L298 79 L299 120 L289 120Z" fill="#344a59" opacity=".7" />
+      <path d="M99 136 L151 127 M407 126 L448 135" fill="none" stroke="#d5e0df" strokeWidth="4" opacity=".45" />
+      <path d="M72 164 L106 164 M444 162 L469 162" stroke="#f2cf8b" strokeWidth="8" strokeLinecap="round" />
+      <path d="M75 187 L461 187" stroke="#1b2936" strokeWidth="6" opacity=".6" />
+      <circle cx="151" cy="187" r="31" fill="#1d2932" /><circle cx="151" cy="187" r="19" fill="#c6cdd0" /><circle cx="151" cy="187" r="10" fill="#63727b" />
+      <circle cx="389" cy="187" r="31" fill="#1d2932" /><circle cx="389" cy="187" r="19" fill="#c6cdd0" /><circle cx="389" cy="187" r="10" fill="#63727b" />
+      <path d="M167 135 L382 135" stroke="#e8eded" strokeWidth="2" opacity=".45" />
+    </svg>
+    <span className="art-caption">DRIVEWELL SELECTION / {vehicle.category.toUpperCase()}</span>
+  </div>;
+}
+
+function AuthPage({ onAuthenticated }: { onAuthenticated: (session: Session) => void }) {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(event: FormEvent) {
+    event.preventDefault(); setError(''); setBusy(true);
+    try {
+      const data = await api<Session>(`/api/auth/${mode}`, undefined, { method: 'POST', body: JSON.stringify(mode === 'register' ? { name, email, password } : { email, password }) });
+      onAuthenticated(data);
+    } catch (cause) { setError((cause as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  return <div className="auth-shell grid">
+    <section className="auth-story flex flex-col justify-between">
+      <Logo light />
+      <div className="auth-story-content">
+        <span className="eyebrow light-eyebrow"><span className="eyebrow-line" /> A BETTER WAY TO MOVE</span>
+        <h1>Every great drive starts with a clear choice<span className="accent-dot">.</span></h1>
+        <p>A thoughtful inventory, ready when you are. Explore what is here, know what is available, and take the next step with confidence.</p>
+        <div className="auth-road" aria-hidden="true"><span /><span /><span /></div>
+      </div>
+      <div className="auth-story-footer"><span>DRIVEWELL / INVENTORY</span><span>MADE FOR THE JOURNEY</span></div>
+    </section>
+    <section className="auth-panel">
+      <div className="auth-panel-inner">
+        <span className="eyebrow"><span className="eyebrow-line" /> YOUR GARAGE STARTS HERE</span>
+        <h2>{mode === 'login' ? 'Welcome back.' : 'Create your account.'}</h2>
+        <p className="muted">{mode === 'login' ? 'Sign in to explore available vehicles.' : 'A few details and you are ready to browse.'}</p>
+        <div className="auth-tabs grid grid-cols-2" role="tablist" aria-label="Account access">
+          <button type="button" className={mode === 'login' ? 'active' : ''} onClick={() => { setMode('login'); setError(''); }}>Sign in</button>
+          <button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => { setMode('register'); setError(''); }}>Register</button>
+        </div>
+        <form onSubmit={submit} className="auth-form grid">
+          {mode === 'register' && <label>Full name<input autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Avery Patel" minLength={2} required /></label>}
+          <label>Email address<input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required /></label>
+          <label>Password<input type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={mode === 'login' ? 'Enter your password' : 'At least 8 characters'} minLength={mode === 'register' ? 8 : undefined} required /></label>
+          {error && <p className="form-error" role="alert">{error}</p>}
+          <button className="button button-primary auth-submit" disabled={busy}>{busy ? 'Please wait…' : mode === 'login' ? 'Sign in to inventory' : 'Create account'} <span aria-hidden="true">↗</span></button>
+        </form>
+        <p className="auth-footnote">Your account gives you a live view of stock. Inventory changes are reserved for dealership admins.</p>
+      </div>
+    </section>
+  </div>;
+}
+
+function Modal({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: ReactNode }) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialogRef.current?.querySelector<HTMLElement>('input, button')?.focus();
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current();
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled)')];
+      if (!focusable.length) return;
+      if (event.shiftKey && document.activeElement === focusable[0]) { event.preventDefault(); focusable.at(-1)?.focus(); }
+      else if (!event.shiftKey && document.activeElement === focusable.at(-1)) { event.preventDefault(); focusable[0].focus(); }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => { document.removeEventListener('keydown', handleKey); document.body.style.overflow = oldOverflow; previous?.focus(); };
+  }, []);
+  return <div className="modal-backdrop grid place-items-center" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="modal" role="dialog" aria-modal="true" aria-label={title} ref={dialogRef}>
+      <header className="modal-header"><div><span className="eyebrow">DRIVEWELL / INVENTORY</span><h2>{title}</h2>{subtitle && <p className="muted">{subtitle}</p>}</div><button className="icon-button" aria-label="Close dialog" onClick={onClose}>×</button></header>
+      {children}
+    </section>
+  </div>;
+}
+
+function VehicleForm({ initial, busy, error, onSave, onClose }: { initial?: Vehicle; busy: boolean; error: string; onSave: (input: VehicleInput) => void; onClose: () => void }) {
+  const [input, setInput] = useState({ make: initial?.make ?? '', model: initial?.model ?? '', category: initial?.category ?? '', price: String(initial?.price ?? ''), quantity: String(initial?.quantity ?? '0') });
+  function field(key: keyof typeof input, value: string) { setInput((current) => ({ ...current, [key]: value })); }
+  return <form className="vehicle-form" onSubmit={(event) => { event.preventDefault(); onSave({ make: input.make, model: input.model, category: input.category, price: Number(input.price), quantity: Number(input.quantity) }); }}>
+    <div className="form-grid grid">
+      <label>Make<input value={input.make} onChange={(event) => field('make', event.target.value)} placeholder="e.g. Tata" maxLength={60} required /></label>
+      <label>Model<input value={input.model} onChange={(event) => field('model', event.target.value)} placeholder="e.g. Nexon EV" maxLength={80} required /></label>
+      <label>Category<input value={input.category} onChange={(event) => field('category', event.target.value)} placeholder="e.g. Electric SUV" maxLength={60} required /></label>
+      <label>Price in ₹<input type="number" min="1" step="1" value={input.price} onChange={(event) => field('price', event.target.value)} required /></label>
+      <label>Units in stock<input type="number" min="0" step="1" value={input.quantity} onChange={(event) => field('quantity', event.target.value)} required /></label>
+    </div>
+    {initial && <p className="form-hint">Changes to stock are recorded in the vehicle history.</p>}
+    {error && <p className="form-error" role="alert">{error}</p>}
+    <div className="modal-actions"><button type="button" className="button button-quiet" onClick={onClose}>Cancel</button><button className="button button-primary" disabled={busy}>{busy ? 'Saving…' : initial ? 'Save changes' : 'Add vehicle'} <span aria-hidden="true">↗</span></button></div>
+  </form>;
+}
+
+function App() {
+  const [session, setSession] = useState<Session | null>(savedSession);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
+  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
+  const [notice, setNotice] = useState('');
+  const [dialog, setDialog] = useState<{ kind: 'add' | 'edit' | 'restock' | 'delete' | 'purchase' | 'history'; vehicle?: Vehicle } | null>(null);
+  const [dialogBusy, setDialogBusy] = useState(false);
+  const [dialogError, setDialogError] = useState('');
+  const [restockQuantity, setRestockQuantity] = useState('1');
+  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [history, setHistory] = useState<StockEvent[]>([]);
+
+  function authenticate(next: Session) { localStorage.setItem('drivewell-session', JSON.stringify(next)); setSession(next); }
+  function signOut() { localStorage.removeItem('drivewell-session'); setSession(null); setVehicles([]); setAllVehicles([]); setDialog(null); }
+
+  useEffect(() => {
+    if (!session) return;
+    let active = true;
+    api<{ vehicles: Vehicle[] }>('/api/vehicles', session.token)
+      .then((result) => { if (active) setAllVehicles(result.vehicles); })
+      .catch((cause) => { if (active) setNotice((cause as Error).message); });
+    return () => { active = false; };
+  }, [session?.token, refresh]);
+
+  useEffect(() => {
+    if (!session) return;
+    let active = true;
+    api<{ user: User }>('/api/auth/me', session.token).then(({ user }) => {
+      if (active) setSession((current) => current ? { ...current, user } : null);
+    }).catch(() => { if (active) signOut(); });
+    return () => { active = false; };
+  }, [session?.token]);
+
+  useEffect(() => {
+    if (!session) return;
+    let active = true;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      const query = new URLSearchParams();
+      for (const [key, value] of Object.entries(filters)) if (value.trim()) query.set(key, value.trim());
+      try {
+        const result = await api<{ vehicles: Vehicle[] }>(query.size ? `/api/vehicles/search?${query}` : '/api/vehicles', session.token);
+        if (active) setVehicles(result.vehicles);
+      } catch (cause) { if (active) setNotice((cause as Error).message); }
+      finally { if (active) setLoading(false); }
+    }, 220);
+    return () => { active = false; clearTimeout(timer); };
+  }, [session?.token, filters, refresh]);
+
+  useEffect(() => {
+    if (!dialog || dialog.kind !== 'history' || !dialog.vehicle || !session) return;
+    let active = true;
+    setHistory([]);
+    api<{ events: StockEvent[] }>(`/api/vehicles/${dialog.vehicle.id}/history`, session.token)
+      .then((data) => { if (active) setHistory(data.events); })
+      .catch((cause) => { if (active) setDialogError((cause as Error).message); });
+    return () => { active = false; };
+  }, [dialog?.kind, dialog?.vehicle?.id, session?.token]);
+
+  function open(kind: NonNullable<typeof dialog>['kind'], vehicle?: Vehicle) { setDialog({ kind, vehicle }); setDialogBusy(false); setDialogError(''); setReceipt(null); setRestockQuantity('1'); }
+  function close() { setDialog(null); setDialogError(''); setReceipt(null); }
+  function done(message: string) { close(); setNotice(message); setRefresh((value) => value + 1); }
+
+  async function saveVehicle(input: VehicleInput) {
+    if (!session || !dialog) return;
+    setDialogBusy(true); setDialogError('');
+    try {
+      const editing = dialog.kind === 'edit' && dialog.vehicle;
+      await api(editing ? `/api/vehicles/${dialog.vehicle!.id}` : '/api/vehicles', session.token, { method: editing ? 'PUT' : 'POST', body: JSON.stringify(input) });
+      done(editing ? 'Vehicle updated. The inventory is current.' : 'Vehicle added to the inventory.');
+    } catch (cause) { setDialogError((cause as Error).message); }
+    finally { setDialogBusy(false); }
+  }
+
+  async function actOnVehicle() {
+    if (!session || !dialog?.vehicle) return;
+    setDialogBusy(true); setDialogError('');
+    const { vehicle, kind } = dialog;
+    try {
+      if (kind === 'purchase') {
+        const result = await api<{ receipt: Receipt }>(`/api/vehicles/${vehicle.id}/purchase`, session.token, { method: 'POST' });
+        setReceipt(result.receipt); setRefresh((value) => value + 1);
+      } else if (kind === 'restock') {
+        await api(`/api/vehicles/${vehicle.id}/restock`, session.token, { method: 'POST', body: JSON.stringify({ quantity: Number(restockQuantity) }) });
+        done(`${vehicle.model} restocked. The new quantity is live.`);
+      } else if (kind === 'delete') {
+        await api(`/api/vehicles/${vehicle.id}`, session.token, { method: 'DELETE' });
+        done(`${vehicle.model} removed from the active inventory.`);
+      }
+    } catch (cause) { setDialogError((cause as Error).message); setRefresh((value) => value + 1); }
+    finally { setDialogBusy(false); }
+  }
+
+  if (!session) return <AuthPage onAuthenticated={authenticate} />;
+
+  const isAdmin = session.user.role === 'admin';
+  const units = allVehicles.reduce((sum, vehicle) => sum + vehicle.quantity, 0);
+  const value = allVehicles.reduce((sum, vehicle) => sum + vehicle.price * vehicle.quantity, 0);
+  const hasFilters = Object.values(filters).some(Boolean);
+
+  return <div className="app-shell">
+    <header className="site-header">
+          <div className="header-inner flex items-center justify-between"><Logo /><nav aria-label="Primary navigation"><span className="nav-active">Inventory</span><span className="nav-divider" /><span className="user-chip"><span className="user-avatar">{session.user.name.charAt(0).toUpperCase()}</span><span className="user-text"><strong>{session.user.name}</strong><small>{isAdmin ? 'Inventory admin' : 'Buyer account'}</small></span></span><button className="logout-button" onClick={signOut}>Sign out ↗</button></nav></div>
+    </header>
+
+    <main>
+      <section className="hero">
+        <div className="hero-grid"><div className="hero-copy"><span className="eyebrow light-eyebrow"><span className="eyebrow-line" /> THE INVENTORY, IN FOCUS</span><h1>Find your next<br /><em>good move.</em></h1><p>Explore what is available right now. Every vehicle, every unit, and every next step in one clear view.</p><div className="hero-foot"><span className="live-indicator"><i /> LIVE INVENTORY</span><span>BUILT FOR CONFIDENT DECISIONS</span></div></div><div className="hero-art" aria-hidden="true"><div className="hero-ring ring-a" /><div className="hero-ring ring-b" /><div className="hero-ring ring-c" /><span className="hero-art-number">01 / DRIVEWELL</span><span className="hero-arrow">↗</span></div></div>
+      </section>
+
+      <section className="content-wrap">
+        <div className="overview-heading"><div><span className="eyebrow"><span className="eyebrow-line" /> AT A GLANCE</span><h2>Inventory overview</h2></div><p>A simple read on what is here and ready.</p></div>
+        <div className="metric-grid grid">
+          <div className="metric"><span className="metric-label">VEHICLES LISTED</span><strong>{allVehicles.length.toString().padStart(2, '0')}</strong><small>Across the inventory</small></div>
+          <div className="metric"><span className="metric-label">UNITS AVAILABLE</span><strong>{units.toString().padStart(2, '0')}</strong><small>Across the inventory</small></div>
+          <div className="metric metric-value"><span className="metric-label">STOCK VALUE</span><strong>{rupees(value)}</strong><small>Based on listed prices</small></div>
+        </div>
+
+        <div className="inventory-heading"><div><span className="eyebrow"><span className="eyebrow-line" /> THE COLLECTION</span><h2>Available vehicles<span className="heading-count">{vehicles.length}</span></h2><p>Good choices start with good information.</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
+        <div className="filters" aria-label="Vehicle filters">
+          <label>MAKE<input value={filters.make} onChange={(event) => setFilters({ ...filters, make: event.target.value })} placeholder="Search make" /></label>
+          <label>MODEL<input value={filters.model} onChange={(event) => setFilters({ ...filters, model: event.target.value })} placeholder="Search model" /></label>
+          <label>CATEGORY<input value={filters.category} onChange={(event) => setFilters({ ...filters, category: event.target.value })} placeholder="Any category" /></label>
+          <label>MIN PRICE ₹<input type="number" min="0" value={filters.minPrice} onChange={(event) => setFilters({ ...filters, minPrice: event.target.value })} placeholder="No minimum" /></label>
+          <label>MAX PRICE ₹<input type="number" min="0" value={filters.maxPrice} onChange={(event) => setFilters({ ...filters, maxPrice: event.target.value })} placeholder="No maximum" /></label>
+          {hasFilters && <button className="clear-button" onClick={() => setFilters(emptyFilters)}>Clear filters ×</button>}
+        </div>
+        <div className="result-line"><span>{loading ? 'Updating inventory…' : `${vehicles.length} ${vehicles.length === 1 ? 'vehicle' : 'vehicles'} in view`}</span><span>{hasFilters ? 'FILTERED VIEW' : 'ALL VEHICLES'}</span></div>
+        {notice && <div className="notice" role="status"><span>{notice}</span><button aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
+        {vehicles.length === 0 && !loading ? <div className="empty-state"><span className="empty-icon">↗</span><h3>{hasFilters ? 'No matches on this route.' : 'The showroom is being prepared.'}</h3><p>{hasFilters ? 'Try a wider search or clear the filters to see the full selection.' : 'Check back soon, or ask an inventory admin to add the first vehicle.'}</p>{hasFilters && <button className="button button-outline" onClick={() => setFilters(emptyFilters)}>Clear filters</button>}</div> : <div className="vehicle-grid grid">{vehicles.map((vehicle, index) => <article className="vehicle-card" key={vehicle.id}>
+          <div className="card-art-wrap"><VehicleArt vehicle={vehicle} /><span className="card-number">{String(index + 1).padStart(2, '0')} / DW</span></div>
+          <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'LAST ONE' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions"><button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button>{isAdmin && <button className="button button-outline manage-button" onClick={() => open('edit', vehicle)}>Manage</button>}</div>{isAdmin && <div className="admin-card-actions"><button onClick={() => open('restock', vehicle)}>Restock</button><button onClick={() => open('history', vehicle)}>Stock history</button><button className="danger-link" onClick={() => open('delete', vehicle)}>Remove</button></div>}</div>
+        </article>)}</div>}
+      </section>
+    </main>
+    <footer className="site-footer"><Logo light /><span>Clarity in every choice. Care in every detail.</span><small>DRIVEWELL © {new Date().getFullYear()}</small></footer>
+
+    {dialog && <Modal title={dialog.kind === 'add' ? 'Add a vehicle' : dialog.kind === 'edit' ? 'Edit vehicle' : dialog.kind === 'purchase' ? receipt ? 'Purchase confirmed' : 'Confirm purchase' : dialog.kind === 'restock' ? 'Restock vehicle' : dialog.kind === 'history' ? 'Stock history' : 'Remove vehicle'} subtitle={dialog.vehicle ? `${dialog.vehicle.make} ${dialog.vehicle.model}` : 'A new addition to the collection'} onClose={close}>
+      {(dialog.kind === 'add' || dialog.kind === 'edit') && <VehicleForm key={dialog.vehicle?.id ?? 'new'} initial={dialog.vehicle} busy={dialogBusy} error={dialogError} onSave={saveVehicle} onClose={close} />}
+      {dialog.kind === 'purchase' && dialog.vehicle && (receipt ? <div className="dialog-content"><div className="success-emblem">✓</div><p className="dialog-lead">Your purchase is recorded.</p><p>Receipt <strong>#{receipt.id.slice(0, 8).toUpperCase()}</strong> · {rupees(receipt.price)} · {new Date(receipt.purchasedAt).toLocaleString('en-IN')}</p><p>{receipt.remainingQuantity} {receipt.remainingQuantity === 1 ? 'unit remains' : 'units remain'} in stock. No payment is collected in this demo.</p><div className="modal-actions"><button className="button button-primary" onClick={close}>Back to inventory ↗</button></div></div> : <div className="dialog-content"><VehicleArt vehicle={dialog.vehicle} large /><p className="dialog-lead">Ready to make it yours?</p><p>One unit of {dialog.vehicle.make} {dialog.vehicle.model} will be removed from available stock at a listed price of <strong>{rupees(dialog.vehicle.price)}</strong>.</p><p className="form-hint">Stock is checked again when you confirm. No payment is collected in this demo.</p>{dialogError && <p className="form-error" role="alert">{dialogError}</p>}<div className="modal-actions"><button className="button button-quiet" onClick={close}>Not now</button><button className="button button-primary" disabled={dialogBusy} onClick={actOnVehicle}>{dialogBusy ? 'Checking stock…' : 'Confirm purchase'} ↗</button></div></div>)}
+      {dialog.kind === 'restock' && dialog.vehicle && <div className="dialog-content"><p className="dialog-lead">Current stock: {dialog.vehicle.quantity} {dialog.vehicle.quantity === 1 ? 'unit' : 'units'}</p><label className="dialog-field">Units to add<input type="number" min="1" max="10000" step="1" value={restockQuantity} onChange={(event) => setRestockQuantity(event.target.value)} /></label><p className="form-hint">This change is recorded in the stock history.</p>{dialogError && <p className="form-error" role="alert">{dialogError}</p>}<div className="modal-actions"><button className="button button-quiet" onClick={close}>Cancel</button><button className="button button-primary" disabled={dialogBusy} onClick={actOnVehicle}>{dialogBusy ? 'Updating…' : 'Add stock'} ↗</button></div></div>}
+      {dialog.kind === 'delete' && dialog.vehicle && <div className="dialog-content"><p className="dialog-lead">Remove this vehicle from the active inventory?</p><p>Customers will no longer see {dialog.vehicle.make} {dialog.vehicle.model}. Its stock history stays in the database.</p>{dialogError && <p className="form-error" role="alert">{dialogError}</p>}<div className="modal-actions"><button className="button button-quiet" onClick={close}>Keep vehicle</button><button className="button button-danger" disabled={dialogBusy} onClick={actOnVehicle}>{dialogBusy ? 'Removing…' : 'Remove vehicle'}</button></div></div>}
+      {dialog.kind === 'history' && <div className="dialog-content">{dialogError && <p className="form-error" role="alert">{dialogError}</p>}{history.length === 0 ? <p className="muted">Loading stock activity…</p> : <ol className="history-list">{history.map((item) => <li key={item.id}><span className={`history-symbol ${item.delta < 0 ? 'negative' : ''}`}>{item.delta < 0 ? '−' : '+'}</span><div><strong>{item.type === 'initial' ? 'Opening stock' : item.type === 'adjustment' ? 'Stock adjustment' : item.type === 'restock' ? 'Restocked' : 'Purchased'}</strong><small>{new Date(item.createdAt).toLocaleString('en-IN')}</small></div><span className="history-delta">{item.delta > 0 ? '+' : ''}{item.delta} <small>→ {item.quantityAfter}</small></span></li>)}</ol>}<div className="modal-actions"><button className="button button-primary" onClick={close}>Done</button></div></div>}
+    </Modal>}
+  </div>;
+}
+
+export default App;
