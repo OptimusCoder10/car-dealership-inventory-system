@@ -16,6 +16,7 @@ These instructions apply to work in this repository. The assignment PDF and the 
 - Never commit secrets, local databases, dependencies, or private notes.
 - Use frequent descriptive commits. For every AI-assisted commit, include a truthful `Co-authored-by: Codex <AI@users.noreply.github.com>` trailer.
 - Do not fabricate red/green test results, manual authorship, or raw AI chat logs. `PROMPTS.md` must contain genuine unedited logs or public chat links.
+- If a later chat adds substantial AI-assisted work, append its verbatim user and assistant messages or a genuinely public chat link to `PROMPTS.md`.
 
 ## Engineering
 
