@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
+import { attachInventoryRoutes } from './inventory';
 
 type Role = 'buyer' | 'admin';
 type UserRow = { id: string; name: string; email: string; password_hash: string; role: Role };
@@ -32,7 +33,7 @@ export interface AppContext {
   db: DatabaseSync;
 }
 
-export function createApp(options: { databasePath: string; jwtSecret: string }): AppContext {
+export function createApp(options: { databasePath: string; jwtSecret: string; admin?: { name: string; email: string; password: string } }): AppContext {
   const app = express();
   const db = new DatabaseSync(options.databasePath);
   db.exec('PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL;');
@@ -45,6 +46,15 @@ export function createApp(options: { databasePath: string; jwtSecret: string }):
       role TEXT NOT NULL CHECK (role IN ('buyer', 'admin'))
     );
   `);
+  if (options.admin) {
+    const adminEmail = options.admin.email.trim().toLowerCase();
+    const existing = db.prepare('SELECT role FROM users WHERE email = ?').get(adminEmail) as { role: Role } | undefined;
+    if (existing?.role === 'buyer') throw new Error('Admin email is already registered as a buyer');
+    if (!existing) {
+      db.prepare('INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)')
+        .run(randomUUID(), options.admin.name, adminEmail, bcrypt.hashSync(options.admin.password, 12), 'admin');
+    }
+  }
   app.use(express.json());
 
   function issueToken(user: UserRow) {
@@ -93,7 +103,7 @@ export function createApp(options: { databasePath: string; jwtSecret: string }):
   });
 
   app.get('/api/auth/me', authenticate, (_req, res) => res.json({ user: res.locals.user }));
-  app.get('/api/vehicles', authenticate, (_req, res) => res.json({ vehicles: [] }));
+  attachInventoryRoutes(app, db, authenticate);
 
   return { app, db };
 }
