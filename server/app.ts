@@ -48,11 +48,17 @@ export function createApp(options: { databasePath: string; jwtSecret: string; ad
   `);
   if (options.admin) {
     const adminEmail = options.admin.email.trim().toLowerCase();
-    const existing = db.prepare('SELECT role FROM users WHERE email = ?').get(adminEmail) as { role: Role } | undefined;
+    const existing = db.prepare('SELECT name, role, password_hash FROM users WHERE email = ?').get(adminEmail) as Pick<UserRow, 'name' | 'role' | 'password_hash'> | undefined;
     if (existing?.role === 'buyer') throw new Error('Admin email is already registered as a buyer');
     if (!existing) {
       db.prepare('INSERT INTO users (id, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)')
         .run(randomUUID(), options.admin.name, adminEmail, bcrypt.hashSync(options.admin.password, 12), 'admin');
+    } else {
+      const passwordMatches = bcrypt.compareSync(options.admin.password, existing.password_hash);
+      if (!passwordMatches || existing.name !== options.admin.name) {
+        db.prepare('UPDATE users SET name = ?, password_hash = ? WHERE email = ?')
+          .run(options.admin.name, passwordMatches ? existing.password_hash : bcrypt.hashSync(options.admin.password, 12), adminEmail);
+      }
     }
   }
   app.use(express.json());

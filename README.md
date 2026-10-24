@@ -41,6 +41,7 @@ Before starting, edit `.env`:
 
 - Replace `JWT_SECRET` with a long random value (at least 24 characters).
 - Set `ADMIN_EMAIL` and a private `ADMIN_PASSWORD` for the initial admin account. Public registration always creates a buyer.
+- Restart the app after changing `ADMIN_PASSWORD` in `.env`; the configured password is synchronized with the existing admin account on startup.
 - Leave `SEED_DEMO=true` to load nine illustrative vehicles on an empty database, or set it to `false` to start empty.
 
 Open **http://localhost:5173**. The development frontend proxies `/api` to the API at **http://localhost:3001**. The SQLite file is created at `DATABASE_PATH` (default `./data/inventory.db`) and is ignored by Git. `SEED_DEMO` only adds vehicles when the database has never contained a vehicle. Remove the local database file if you want a fresh demo.
