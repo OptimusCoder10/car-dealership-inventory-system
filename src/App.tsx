@@ -37,17 +37,32 @@ function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: bool
   const colors = ['#476a80', '#a8755a', '#718472', '#6b688f', '#b99153', '#51626c'];
   const index = [...vehicle.model].reduce((sum, character) => sum + character.charCodeAt(0), 0) % colors.length;
   const color = colors[index];
-  return <div className={`vehicle-art ${large ? 'vehicle-art-large' : ''}`} style={{ '--car-color': color } as React.CSSProperties} aria-hidden="true">
+  const category = vehicle.category.toLowerCase();
+  const shape = category.includes('suv') || category.includes('adventure') ? 'suv' : category.includes('family') ? 'mpv' : category.includes('electric') ? 'compact' : 'sedan';
+  const artId = `${vehicle.id}-${large ? 'dialog' : 'card'}`;
+  const bodies = {
+    sedan: 'M67 145 Q76 127 112 124 L159 119 Q182 75 230 69 L338 69 Q386 74 410 119 L453 127 Q473 132 480 148 L477 179 Q474 188 463 189 L69 189 Q56 185 56 175 L59 156 Q60 149 67 145Z',
+    suv: 'M51 141 Q63 127 114 124 L164 119 L188 78 Q197 65 222 65 L369 65 Q390 65 402 87 L426 123 L464 133 Q482 139 484 154 L481 178 Q479 188 464 189 L58 189 Q44 186 44 172 L44 153 Q44 145 51 141Z',
+    mpv: 'M57 143 Q68 126 110 122 L161 118 L189 82 Q201 68 224 68 L377 68 Q397 68 408 88 L432 124 L463 132 Q481 137 484 152 L481 178 Q479 188 464 189 L58 189 Q44 186 44 172 L45 153 Q46 147 57 143Z',
+    compact: 'M82 143 Q93 128 135 125 L176 119 L201 91 Q211 79 235 79 L354 79 Q376 79 391 104 L411 127 L454 135 Q471 140 476 154 L475 178 Q473 187 461 189 L82 189 Q66 187 65 173 L69 154 Q72 147 82 143Z',
+  };
+  const windows = {
+    sedan: 'M182 118 Q203 81 233 79 L288 79 L288 119Z M299 79 L337 79 Q373 83 392 119 L299 119Z',
+    suv: 'M186 116 L208 81 Q214 77 228 77 L288 77 L288 117Z M299 77 L366 77 Q382 78 389 95 L402 117 L299 117Z',
+    mpv: 'M181 116 L207 82 Q215 79 227 79 L294 79 L294 117Z M305 79 L371 79 Q388 80 396 98 L410 117 L305 117Z',
+    compact: 'M195 117 L218 94 Q224 89 236 89 L291 89 L291 119Z M302 89 L349 89 Q369 91 379 107 L390 120 L302 120Z',
+  };
+  return <div className={`vehicle-art vehicle-art-${shape} ${large ? 'vehicle-art-large' : ''}`} style={{ '--car-color': color } as React.CSSProperties} aria-hidden="true">
     <div className="art-orbit art-orbit-one" /><div className="art-orbit art-orbit-two" />
     <svg viewBox="0 0 520 235" role="presentation">
       <defs>
-        <linearGradient id={`body-${vehicle.id}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor={color} /><stop offset="1" stopColor="#263646" /></linearGradient>
-        <linearGradient id={`glass-${vehicle.id}`} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#d3e2e9" /><stop offset="1" stopColor="#8ea7b5" /></linearGradient>
+        <linearGradient id={`body-${artId}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor={color} /><stop offset="1" stopColor="#263646" /></linearGradient>
+        <linearGradient id={`glass-${artId}`} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#d3e2e9" /><stop offset="1" stopColor="#8ea7b5" /></linearGradient>
       </defs>
       <ellipse cx="262" cy="199" rx="210" ry="18" fill="#66757d" opacity=".14" />
-      <path d="M67 145 Q76 127 112 124 L159 119 Q182 75 230 69 L338 69 Q386 74 410 119 L453 127 Q473 132 480 148 L477 179 Q474 188 463 189 L69 189 Q56 185 56 175 L59 156 Q60 149 67 145Z" fill={`url(#body-${vehicle.id})`} />
-      <path d="M182 118 Q203 81 233 79 L288 79 L288 119Z M299 79 L337 79 Q373 83 392 119 L299 119Z" fill={`url(#glass-${vehicle.id})`} />
-      <path d="M289 79 L298 79 L299 120 L289 120Z" fill="#344a59" opacity=".7" />
+      <path d={bodies[shape]} fill={`url(#body-${artId})`} />
+      <path d={windows[shape]} fill={`url(#glass-${artId})`} />
+      <path d={shape === 'compact' ? 'M291 89 L302 89 L302 120 L291 120Z' : shape === 'suv' ? 'M288 77 L299 77 L299 117 L288 117Z' : 'M294 79 L305 79 L305 117 L294 117Z'} fill="#344a59" opacity=".7" />
       <path d="M99 136 L151 127 M407 126 L448 135" fill="none" stroke="#d5e0df" strokeWidth="4" opacity=".45" />
       <path d="M72 164 L106 164 M444 162 L469 162" stroke="#f2cf8b" strokeWidth="8" strokeLinecap="round" />
       <path d="M75 187 L461 187" stroke="#1b2936" strokeWidth="6" opacity=".6" />
@@ -55,7 +70,7 @@ function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: bool
       <circle cx="389" cy="187" r="31" fill="#1d2932" /><circle cx="389" cy="187" r="19" fill="#c6cdd0" /><circle cx="389" cy="187" r="10" fill="#63727b" />
       <path d="M167 135 L382 135" stroke="#e8eded" strokeWidth="2" opacity=".45" />
     </svg>
-    <span className="art-caption">DRIVEWELL SELECTION / {vehicle.category.toUpperCase()}</span>
+    <span className="art-caption">{vehicle.category.toUpperCase()} / DRIVEWELL</span>
   </div>;
 }
 
@@ -255,6 +270,7 @@ function App() {
   const isAdmin = session.user.role === 'admin';
   const units = allVehicles.reduce((sum, vehicle) => sum + vehicle.quantity, 0);
   const value = allVehicles.reduce((sum, vehicle) => sum + vehicle.price * vehicle.quantity, 0);
+  const startingPrice = Math.min(...allVehicles.filter((vehicle) => vehicle.quantity > 0).map((vehicle) => vehicle.price));
   const hasFilters = Object.values(filters).some(Boolean);
 
   return <div className="app-shell">
@@ -264,18 +280,25 @@ function App() {
 
     <main>
       <section className="hero">
-        <div className="hero-grid"><div className="hero-copy"><span className="eyebrow light-eyebrow"><span className="eyebrow-line" /> THE INVENTORY, IN FOCUS</span><h1>Find your next<br /><em>good move.</em></h1><p>Explore what is available right now. Every vehicle, every unit, and every next step in one clear view.</p><div className="hero-foot"><span className="live-indicator"><i /> LIVE INVENTORY</span><span>BUILT FOR CONFIDENT DECISIONS</span></div></div><div className="hero-art" aria-hidden="true"><div className="hero-ring ring-a" /><div className="hero-ring ring-b" /><div className="hero-ring ring-c" /><span className="hero-art-number">01 / DRIVEWELL</span><span className="hero-arrow">↗</span></div></div>
+        <div className="hero-grid">
+          <div className="hero-copy">
+            <h1>{isAdmin ? <>Every vehicle,<br /><em>accounted for.</em></> : <>Find your next<br /><em>good move.</em></>}</h1>
+            <p>{isAdmin ? 'See what is ready, what needs attention, and why every stock number changed.' : 'A clearer way to choose: real availability, listed prices, and no surprises at the next step.'}</p>
+            <a className="hero-link" href="#inventory">{isAdmin ? 'Manage inventory' : 'Explore vehicles'} <span aria-hidden="true">↓</span></a>
+          </div>
+          <div className="hero-ledger" aria-label="Live inventory summary">
+            <span className="ledger-status"><i /> Updated as stock changes</span>
+            <dl>
+              <div><dt>VEHICLES LISTED</dt><dd>{String(allVehicles.length).padStart(2, '0')}</dd></div>
+              <div><dt>UNITS AVAILABLE</dt><dd>{String(units).padStart(2, '0')}</dd></div>
+              <div><dt>{isAdmin ? 'LISTED STOCK VALUE' : 'STARTING PRICE'}</dt><dd>{isAdmin ? rupees(value) : Number.isFinite(startingPrice) ? rupees(startingPrice) : '—'}</dd></div>
+            </dl>
+          </div>
+        </div>
       </section>
 
-      <section className="content-wrap">
-        <div className="overview-heading"><div><span className="eyebrow"><span className="eyebrow-line" /> AT A GLANCE</span><h2>Inventory overview</h2></div><p>A simple read on what is here and ready.</p></div>
-        <div className="metric-grid grid">
-          <div className="metric"><span className="metric-label">VEHICLES LISTED</span><strong>{allVehicles.length.toString().padStart(2, '0')}</strong><small>Across the inventory</small></div>
-          <div className="metric"><span className="metric-label">UNITS AVAILABLE</span><strong>{units.toString().padStart(2, '0')}</strong><small>Across the inventory</small></div>
-          <div className="metric metric-value"><span className="metric-label">STOCK VALUE</span><strong>{rupees(value)}</strong><small>Based on listed prices</small></div>
-        </div>
-
-        <div className="inventory-heading"><div><span className="eyebrow"><span className="eyebrow-line" /> THE COLLECTION</span><h2>Available vehicles<span className="heading-count">{vehicles.length}</span></h2><p>Good choices start with good information.</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
+      <section className="content-wrap" id="inventory">
+        <div className="inventory-heading"><div><h2>{isAdmin ? 'Manage the collection' : 'Explore the collection'}<span className="heading-count">{vehicles.length}</span></h2><p>{isAdmin ? 'Stock and vehicle details, in one working view.' : 'Browse what is here, including vehicles currently sold out.'}</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
         <div className="filters" aria-label="Vehicle filters">
           <label>MAKE<input value={filters.make} onChange={(event) => setFilters({ ...filters, make: event.target.value })} placeholder="Search make" /></label>
           <label>MODEL<input value={filters.model} onChange={(event) => setFilters({ ...filters, model: event.target.value })} placeholder="Search model" /></label>
@@ -284,11 +307,11 @@ function App() {
           <label>MAX PRICE ₹<input type="number" min="0" value={filters.maxPrice} onChange={(event) => setFilters({ ...filters, maxPrice: event.target.value })} placeholder="No maximum" /></label>
           {hasFilters && <button className="clear-button" onClick={() => setFilters(emptyFilters)}>Clear filters ×</button>}
         </div>
-        <div className="result-line"><span>{loading ? 'Updating inventory…' : `${vehicles.length} ${vehicles.length === 1 ? 'vehicle' : 'vehicles'} in view`}</span><span>{hasFilters ? 'FILTERED VIEW' : 'ALL VEHICLES'}</span></div>
+        <div className="result-line" aria-live="polite"><span>{loading ? 'Updating inventory…' : `${vehicles.length} ${vehicles.length === 1 ? 'vehicle' : 'vehicles'} in view`}</span><span>{hasFilters ? 'FILTERED VIEW' : 'ALL VEHICLES'}</span></div>
         {notice && <div className="notice" role="status"><span>{notice}</span><button aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
-        {vehicles.length === 0 && !loading ? <div className="empty-state"><span className="empty-icon">↗</span><h3>{hasFilters ? 'No matches on this route.' : 'The showroom is being prepared.'}</h3><p>{hasFilters ? 'Try a wider search or clear the filters to see the full selection.' : 'Check back soon, or ask an inventory admin to add the first vehicle.'}</p>{hasFilters && <button className="button button-outline" onClick={() => setFilters(emptyFilters)}>Clear filters</button>}</div> : <div className="vehicle-grid grid">{vehicles.map((vehicle, index) => <article className="vehicle-card" key={vehicle.id}>
-          <div className="card-art-wrap"><VehicleArt vehicle={vehicle} /><span className="card-number">{String(index + 1).padStart(2, '0')} / DW</span></div>
-          <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'LAST ONE' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions"><button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button>{isAdmin && <button className="button button-outline manage-button" onClick={() => open('edit', vehicle)}>Manage</button>}</div>{isAdmin && <div className="admin-card-actions"><button onClick={() => open('restock', vehicle)}>Restock</button><button onClick={() => open('history', vehicle)}>Stock history</button><button className="danger-link" onClick={() => open('delete', vehicle)}>Remove</button></div>}</div>
+        {vehicles.length === 0 && !loading ? <div className="empty-state"><span className="empty-icon">↗</span><h3>{hasFilters ? 'No matches on this route.' : 'The showroom is being prepared.'}</h3><p>{hasFilters ? 'Try a wider search or clear the filters to see the full selection.' : 'Check back soon, or ask an inventory admin to add the first vehicle.'}</p>{hasFilters && <button className="button button-outline" onClick={() => setFilters(emptyFilters)}>Clear filters</button>}</div> : <div className="vehicle-grid grid">{vehicles.map((vehicle) => <article className="vehicle-card" key={vehicle.id}>
+          <div className="card-art-wrap"><VehicleArt vehicle={vehicle} /></div>
+          <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'ONLY 1 LEFT' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions">{isAdmin ? <><button className="button button-primary" onClick={() => open('restock', vehicle)}>Restock <span aria-hidden="true">+</span></button><button className="button button-outline manage-button" onClick={() => open('edit', vehicle)}>Edit details</button></> : <button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button>}</div>{isAdmin && <div className="admin-card-actions"><button onClick={() => open('history', vehicle)}>Stock history</button><button className="danger-link" onClick={() => open('delete', vehicle)}>Remove</button></div>}</div>
         </article>)}</div>}
       </section>
     </main>

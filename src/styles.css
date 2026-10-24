@@ -18,3 +18,79 @@ input{outline:none;border:1px solid #d8dbd8;border-radius:4px;background:#fff;co
 @media(max-width:980px){.vehicle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-grid{grid-template-columns:1fr .6fr}.hero-art{opacity:.55}.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.metric-value strong{font-size:24px}}
 @media(max-width:690px){.auth-shell{grid-template-columns:1fr}.auth-story{min-height:280px;padding:24px}.auth-story-content{padding:20px 0 10px}.auth-story h1{font-size:43px;max-width:440px;margin:12px 0}.auth-story-content p,.auth-road,.auth-story-footer{display:none}.auth-panel{padding:42px 24px 70px}.header-inner{padding:15px 19px}.site-header nav{gap:13px}.nav-active,.nav-divider,.user-text{display:none}.brand{font-size:22px}.hero-grid{display:block;min-height:0}.hero-copy{padding:48px 22px 30px}.hero h1{font-size:52px}.hero-copy p{font-size:14px}.hero-art{display:none}.hero-foot{font-size:8px;gap:12px;flex-wrap:wrap}.content-wrap{padding:42px 18px 70px}.overview-heading,.inventory-heading{align-items:start}.overview-heading>p{display:none}.overview-heading h2,.inventory-heading h2{font-size:31px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:60px}.metric{min-height:125px;padding:18px}.metric strong{font-size:34px}.metric-value{grid-column:span 2;min-height:110px}.metric-value strong{font-size:28px}.inventory-heading{flex-direction:column}.filters{grid-template-columns:repeat(2,minmax(0,1fr));padding:13px;gap:10px}.filters label:nth-child(3){grid-column:span 2}.vehicle-grid{grid-template-columns:1fr}.vehicle-art{height:220px}.site-footer{padding:35px 20px;flex-wrap:wrap}.site-footer>span{order:3;width:100%}.modal-header,.vehicle-form,.dialog-content{padding-left:20px;padding-right:20px}}
 @media(max-width:390px){.form-grid{grid-template-columns:1fr}.form-grid label:nth-child(3){grid-column:auto}.site-header nav{gap:5px}.logout-button{font-size:11px}.hero h1{font-size:46px}.metric-value strong{font-size:23px}}
+
+/* Inventory-first layout: the live facts and search lead before the vehicle cards. */
+html{scroll-behavior:smooth}
+::selection{background:#e5af80;color:#142536}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #b46635;outline-offset:3px}
+.hero-grid{min-height:0;grid-template-columns:minmax(0,1.16fr) minmax(330px,.84fr)}
+.hero-copy{padding:40px 30px 36px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.hero h1{font-size:clamp(46px,5vw,68px);letter-spacing:-.04em;line-height:1.04;margin:0 0 16px}
+.hero-copy p{font-size:15px;line-height:1.62;margin-bottom:20px;max-width:52ch}
+.hero-link{display:inline-flex;align-items:center;gap:18px;min-height:44px;color:#f4d3b6;font-size:13px;font-weight:750;text-decoration:none;border-bottom:1px solid #d48e59;padding:4px 1px}
+.hero-link span{font-size:20px;line-height:1;transition:transform .2s ease}
+.hero-link:hover span{transform:translateY(3px)}
+.hero-ledger{padding:34px clamp(28px,4vw,60px);display:flex;flex-direction:column;justify-content:center;background:#1d3445;border-left:1px solid #ffffff22;position:relative}
+.hero-ledger:after{content:"";position:absolute;right:30px;top:28px;width:34px;height:34px;border-top:1px solid #dfad81;border-right:1px solid #dfad81;opacity:.8}
+.ledger-status{display:flex;align-items:center;gap:9px;color:#cbd9d9;font-size:11px;font-weight:700;margin-bottom:14px}
+.ledger-status i{width:7px;height:7px;background:#98ba99;border-radius:50%}
+.hero-ledger dl{margin:0}
+.hero-ledger dl>div{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px solid #ffffff24;padding:11px 0}
+.hero-ledger dt{color:#b8c7cd;font-size:10px;font-weight:750;letter-spacing:.1em}
+.hero-ledger dd{font-family:Georgia,serif;font-size:25px;line-height:1;margin:0;color:#f7f5ee;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hero-ledger dl>div:last-child dd{font-size:20px;color:#f3c49b}
+.content-wrap{padding-top:36px}
+.inventory-heading{margin-bottom:22px}
+.inventory-heading h2{font-size:clamp(31px,3vw,40px);margin:0;letter-spacing:-.035em}
+.inventory-heading p{margin-top:9px;color:#5d6c75;font-size:13px}
+.filters{margin-bottom:12px;padding:16px;background:#fbfaf7;border-color:#d7d9d5}
+.filters label{color:#4f606a;font-size:10px}
+.filters input{font-size:13px}
+.result-line{margin:17px 0;color:#54656e}
+.vehicle-grid{gap:16px}
+.vehicle-card{border-color:#daddd8}
+.vehicle-art{height:190px;background:#e5ebea;border-bottom:1px solid #d4dedb}
+.vehicle-art-suv{background:#e5e9e3}
+.vehicle-art-mpv{background:#e8ece6}
+.vehicle-art-compact{background:#e3eaec}
+.vehicle-art:before{content:"";position:absolute;left:0;right:0;bottom:30px;border-top:1px solid #ffffffb0}
+.art-orbit{display:none}
+.art-caption{color:#5d747d;font-size:9px;right:17px;bottom:12px}
+.vehicle-card h3{margin:16px 0 22px}
+.stock-pill{font-size:9px;font-weight:850;padding:7px 8px}
+.card-actions .button{min-height:44px}
+.admin-card-actions{border-top:1px solid #e5e6e0;margin-top:14px;padding-top:12px}
+.admin-card-actions button{min-height:36px}
+.vehicle-card:focus-within{box-shadow:0 0 0 2px #c98c5e}
+
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.8fr)}
+  .hero-ledger{padding:28px}
+  .hero-ledger dd{font-size:22px}
+  .hero-ledger dl>div:last-child dd{font-size:17px}
+}
+@media(max-width:690px){
+  .hero-grid{display:block}
+  .hero-copy{padding:34px 22px 25px}
+  .hero h1{font-size:clamp(44px,11vw,56px)}
+  .hero-copy p{margin-bottom:13px}
+  .hero-ledger{border-left:0;border-top:1px solid #ffffff22;padding:18px 22px 21px}
+  .hero-ledger:after{display:none}
+  .ledger-status{margin-bottom:5px}
+  .hero-ledger dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .hero-ledger dl>div{display:flex;flex-direction:column;gap:7px;border-bottom:0;border-right:1px solid #ffffff24;padding:10px 6px 0 0}
+  .hero-ledger dl>div:last-child{border-right:0}
+  .hero-ledger dt{font-size:8px;line-height:1.3}
+  .hero-ledger dd{font-size:21px}
+  .hero-ledger dl>div:last-child dd{font-size:15px}
+  .content-wrap{padding-top:30px}
+  .inventory-heading{gap:14px}
+  .inventory-heading h2{font-size:32px}
+  .vehicle-art{height:205px}
+}
+@media(max-width:390px){
+  .hero-ledger dl{gap:6px}
+  .hero-ledger dd{font-size:19px}
+  .hero-ledger dl>div:last-child dd{font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-link span,.vehicle-card{transition:none}}
