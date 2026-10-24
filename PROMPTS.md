@@ -189,3 +189,69 @@ The admin view now puts live stock and filters near the top, and the cards give 
 The buyer flow now shows the lowest in-stock price, keeps sold-out vehicles visible, and narrows correctly when a filter is used. I also found a small illustration issue during review: the adventure vehicle was using the sedan shape, so I corrected its category cue and refreshed the screenshots.
 ~~~
 
+## Visible redesign follow-up — 2026-10-24
+
+These are verbatim message bodies from the follow-up that led to the second UI pass. Tool calls and outputs are omitted.
+
+### User
+
+~~~text
+ok what exactly did u change in the ui cause it seems the same to mee
+~~~
+
+### Assistant
+
+~~~text
+You’re right. The last pass changed the layout and actions, but kept the same colors, typography, login, and card structure—so it still reads as the same UI. I’ll make a more visible change now, especially by giving admins a stock-focused workspace and buyers a different browsing experience.
+~~~
+
+### User
+
+~~~text
+ok stop for now we will resume later
+~~~
+
+### Assistant
+
+~~~text
+Stopped. You were right about the earlier pass: it changed the inventory layout and actions, but kept the same overall look.
+
+I started a more distinct redesign, but only made **uncommitted edits** to login copy and illustration IDs in [App.tsx](/home/suryanshbajaj/Suryansh/Project/Incubyte/car-dealership-inventory-system/src/App.tsx). They are untested and unpushed. We can resume from there later.
+~~~
+
+### User
+
+~~~text
+continue
+~~~
+
+### Assistant
+
+~~~text
+I’ll pick up the unfinished redesign. I’ll first check the uncommitted edits from where we stopped, then make the buyer and admin screens visibly different, verify both flows, and update the screenshots and handover notes.
+~~~
+
+### Assistant
+
+~~~text
+The new structure is in place. Buyers now get a featured vehicle and a two-column browsing layout; admins get a restock queue and a compact stock ledger. The login screen also has a new color and composition. I’m checking the rendered screens now for clipping and awkward states.
+~~~
+
+### Assistant
+
+~~~text
+I’m finishing the visual check now, then I’ll run the final build and tests, refresh the screenshots and notes, and push the completed redesign.
+~~~
+
+### Assistant
+
+~~~text
+The buyer collection now has a clearly different layout from the admin workspace. I verified that a sold-out car remains visible and its purchase action is disabled; I’m saving that state and checking the final code and documentation.
+~~~
+
+### Assistant
+
+~~~text
+The refreshed screens and receipt are saved. The redesign is now reflected in the README; I’m running the project checks and a final privacy audit before committing it.
+~~~
+

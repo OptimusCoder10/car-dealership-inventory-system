@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 type User = { id: string; name: string; email: string; role: 'buyer' | 'admin' };
 type Session = { user: User; token: string };
@@ -39,7 +39,7 @@ function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: bool
   const color = colors[index];
   const category = vehicle.category.toLowerCase();
   const shape = category.includes('suv') || category.includes('adventure') ? 'suv' : category.includes('family') ? 'mpv' : category.includes('electric') ? 'compact' : 'sedan';
-  const artId = `${vehicle.id}-${large ? 'dialog' : 'card'}`;
+  const artId = useId().replace(/:/g, '');
   const bodies = {
     sedan: 'M67 145 Q76 127 112 124 L159 119 Q182 75 230 69 L338 69 Q386 74 410 119 L453 127 Q473 132 480 148 L477 179 Q474 188 463 189 L69 189 Q56 185 56 175 L59 156 Q60 149 67 145Z',
     suv: 'M51 141 Q63 127 114 124 L164 119 L188 78 Q197 65 222 65 L369 65 Q390 65 402 87 L426 123 L464 133 Q482 139 484 154 L481 178 Q479 188 464 189 L58 189 Q44 186 44 172 L44 153 Q44 145 51 141Z',
@@ -95,16 +95,14 @@ function AuthPage({ onAuthenticated }: { onAuthenticated: (session: Session) => 
     <section className="auth-story flex flex-col justify-between">
       <Logo light />
       <div className="auth-story-content">
-        <span className="eyebrow light-eyebrow"><span className="eyebrow-line" /> A BETTER WAY TO MOVE</span>
-        <h1>Every great drive starts with a clear choice<span className="accent-dot">.</span></h1>
-        <p>A thoughtful inventory, ready when you are. Explore what is here, know what is available, and take the next step with confidence.</p>
+        <h1>Good cars.<br />Clear choices<span className="accent-dot">.</span></h1>
+        <p>See what is available, understand the price, and decide at your own pace.</p>
         <div className="auth-road" aria-hidden="true"><span /><span /><span /></div>
       </div>
-      <div className="auth-story-footer"><span>DRIVEWELL / INVENTORY</span><span>MADE FOR THE JOURNEY</span></div>
+      <div className="auth-story-footer"><span>REAL STOCK. CLEAR NEXT STEPS.</span><span>DRIVEWELL / 2026</span></div>
     </section>
     <section className="auth-panel">
       <div className="auth-panel-inner">
-        <span className="eyebrow"><span className="eyebrow-line" /> YOUR GARAGE STARTS HERE</span>
         <h2>{mode === 'login' ? 'Welcome back.' : 'Create your account.'}</h2>
         <p className="muted">{mode === 'login' ? 'Sign in to explore available vehicles.' : 'A few details and you are ready to browse.'}</p>
         <div className="auth-tabs grid grid-cols-2" role="tablist" aria-label="Account access">
@@ -184,8 +182,8 @@ function App() {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [history, setHistory] = useState<StockEvent[]>([]);
 
-  function authenticate(next: Session) { localStorage.setItem('drivewell-session', JSON.stringify(next)); setSession(next); }
-  function signOut() { localStorage.removeItem('drivewell-session'); setSession(null); setVehicles([]); setAllVehicles([]); setDialog(null); }
+  function authenticate(next: Session) { localStorage.setItem('drivewell-session', JSON.stringify(next)); setNotice(''); setSession(next); }
+  function signOut() { localStorage.removeItem('drivewell-session'); setSession(null); setVehicles([]); setAllVehicles([]); setFilters(emptyFilters); setNotice(''); setDialog(null); }
 
   useEffect(() => {
     if (!session) return;
@@ -270,35 +268,48 @@ function App() {
   const isAdmin = session.user.role === 'admin';
   const units = allVehicles.reduce((sum, vehicle) => sum + vehicle.quantity, 0);
   const value = allVehicles.reduce((sum, vehicle) => sum + vehicle.price * vehicle.quantity, 0);
-  const startingPrice = Math.min(...allVehicles.filter((vehicle) => vehicle.quantity > 0).map((vehicle) => vehicle.price));
+  const featuredVehicle = allVehicles.filter((vehicle) => vehicle.quantity > 0).sort((a, b) => a.price - b.price)[0];
+  const lowStockVehicles = allVehicles.filter((vehicle) => vehicle.quantity <= 1);
   const hasFilters = Object.values(filters).some(Boolean);
 
-  return <div className="app-shell">
+  return <div className={`app-shell ${isAdmin ? 'admin-shell' : 'buyer-shell'}`}>
     <header className="site-header">
-          <div className="header-inner flex items-center justify-between"><Logo /><nav aria-label="Primary navigation"><span className="nav-active">Inventory</span><span className="nav-divider" /><span className="user-chip"><span className="user-avatar">{session.user.name.charAt(0).toUpperCase()}</span><span className="user-text"><strong>{session.user.name}</strong><small>{isAdmin ? 'Inventory admin' : 'Buyer account'}</small></span></span><button className="logout-button" onClick={signOut}>Sign out ↗</button></nav></div>
+          <div className="header-inner flex items-center justify-between"><Logo light /><nav aria-label="Primary navigation"><span className="nav-active">{isAdmin ? 'Stock desk' : 'Showroom'}</span><span className="nav-divider" /><span className="user-chip"><span className="user-avatar">{session.user.name.charAt(0).toUpperCase()}</span><span className="user-text"><strong>{session.user.name}</strong><small>{isAdmin ? 'Inventory admin' : 'Buyer account'}</small></span></span><button className="logout-button" onClick={signOut}>Sign out ↗</button></nav></div>
     </header>
 
     <main>
-      <section className="hero">
-        <div className="hero-grid">
-          <div className="hero-copy">
-            <h1>{isAdmin ? <>Every vehicle,<br /><em>accounted for.</em></> : <>Find your next<br /><em>good move.</em></>}</h1>
-            <p>{isAdmin ? 'See what is ready, what needs attention, and why every stock number changed.' : 'A clearer way to choose: real availability, listed prices, and no surprises at the next step.'}</p>
-            <a className="hero-link" href="#inventory">{isAdmin ? 'Manage inventory' : 'Explore vehicles'} <span aria-hidden="true">↓</span></a>
+      {isAdmin ? <section className="workspace-hero" aria-label="Stock overview">
+        <div className="workspace-hero-inner">
+          <div className="workspace-copy">
+            <h1>Every car has<br />a story in stock.</h1>
+            <p>Know what is ready to sell, what needs a restock, and how each count changed.</p>
+            <a className="hero-link" href="#inventory">Work the inventory <span aria-hidden="true">↓</span></a>
           </div>
-          <div className="hero-ledger" aria-label="Live inventory summary">
-            <span className="ledger-status"><i /> Updated as stock changes</span>
-            <dl>
-              <div><dt>VEHICLES LISTED</dt><dd>{String(allVehicles.length).padStart(2, '0')}</dd></div>
-              <div><dt>UNITS AVAILABLE</dt><dd>{String(units).padStart(2, '0')}</dd></div>
-              <div><dt>{isAdmin ? 'LISTED STOCK VALUE' : 'STARTING PRICE'}</dt><dd>{isAdmin ? rupees(value) : Number.isFinite(startingPrice) ? rupees(startingPrice) : '—'}</dd></div>
-            </dl>
+          <div className="workspace-scoreboard">
+            <div className="scoreboard-top"><span>Live stock desk</span><span className="scoreboard-live"><i /> Current</span></div>
+            <strong>{String(units).padStart(2, '0')}</strong>
+            <p>units available across {allVehicles.length} vehicles</p>
+            <dl><div><dt>Listed stock value</dt><dd>{rupees(value)}</dd></div><div><dt>Need attention</dt><dd>{lowStockVehicles.length} {lowStockVehicles.length === 1 ? 'vehicle' : 'vehicles'}</dd></div></dl>
           </div>
         </div>
-      </section>
+      </section> : <section className="showroom-hero" aria-label="Showroom introduction">
+        <div className="showroom-copy">
+          <h1>Find a car that<br /><em>feels right.</em></h1>
+          <p>Real availability, clear prices, and time to choose. Browse the collection before making your move.</p>
+          <a className="hero-link" href="#inventory">Explore the collection <span aria-hidden="true">↓</span></a>
+          <div className="showroom-facts"><span><strong>{allVehicles.length}</strong> vehicles listed</span><span><strong>{units}</strong> units available</span></div>
+        </div>
+        <div className="showroom-feature">
+          {featuredVehicle ? <>
+            <div className="feature-art"><VehicleArt vehicle={featuredVehicle} large /></div>
+            <div className="feature-bottom"><div><span>Lowest in-stock price</span><h2>{featuredVehicle.make} {featuredVehicle.model}</h2><strong>{rupees(featuredVehicle.price)}</strong></div><button className="button button-primary" onClick={() => open('purchase', featuredVehicle)}>View purchase details <span aria-hidden="true">↗</span></button></div>
+          </> : <div className="feature-empty"><h2>New arrivals ahead.</h2><p>There are no vehicles available to purchase right now. You can still browse the listed collection.</p></div>}
+        </div>
+      </section>}
 
       <section className="content-wrap" id="inventory">
-        <div className="inventory-heading"><div><h2>{isAdmin ? 'Manage the collection' : 'Explore the collection'}<span className="heading-count">{vehicles.length}</span></h2><p>{isAdmin ? 'Stock and vehicle details, in one working view.' : 'Browse what is here, including vehicles currently sold out.'}</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
+        {isAdmin && lowStockVehicles.length > 0 && <section className="attention-section" aria-label="Vehicles needing attention"><div className="attention-intro"><h2>Restock queue</h2><p>Zero or one unit remaining. Take action before a buyer reaches an empty listing.</p></div><div className="attention-list">{lowStockVehicles.map((vehicle) => <div className="attention-item" key={vehicle.id}><span className="attention-quantity">{vehicle.quantity === 0 ? 'OUT' : '01'}</span><span><strong>{vehicle.make} {vehicle.model}</strong><small>{vehicle.quantity === 0 ? 'Out of stock' : 'Only one left'}</small></span><button onClick={() => open('restock', vehicle)} aria-label={`Restock ${vehicle.make} ${vehicle.model}`}>Restock <span aria-hidden="true">↗</span></button></div>)}</div></section>}
+        <div className="inventory-heading"><div><h2>{isAdmin ? 'Inventory records' : 'The collection'}<span className="heading-count">{vehicles.length}</span></h2><p>{isAdmin ? 'Search, correct, and trace every vehicle in one place.' : 'Browse what is here, including vehicles currently sold out.'}</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
         <div className="filters" aria-label="Vehicle filters">
           <label>MAKE<input value={filters.make} onChange={(event) => setFilters({ ...filters, make: event.target.value })} placeholder="Search make" /></label>
           <label>MODEL<input value={filters.model} onChange={(event) => setFilters({ ...filters, model: event.target.value })} placeholder="Search model" /></label>
@@ -309,9 +320,15 @@ function App() {
         </div>
         <div className="result-line" aria-live="polite"><span>{loading ? 'Updating inventory…' : `${vehicles.length} ${vehicles.length === 1 ? 'vehicle' : 'vehicles'} in view`}</span><span>{hasFilters ? 'FILTERED VIEW' : 'ALL VEHICLES'}</span></div>
         {notice && <div className="notice" role="status"><span>{notice}</span><button aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
-        {vehicles.length === 0 && !loading ? <div className="empty-state"><span className="empty-icon">↗</span><h3>{hasFilters ? 'No matches on this route.' : 'The showroom is being prepared.'}</h3><p>{hasFilters ? 'Try a wider search or clear the filters to see the full selection.' : 'Check back soon, or ask an inventory admin to add the first vehicle.'}</p>{hasFilters && <button className="button button-outline" onClick={() => setFilters(emptyFilters)}>Clear filters</button>}</div> : <div className="vehicle-grid grid">{vehicles.map((vehicle) => <article className="vehicle-card" key={vehicle.id}>
+        {vehicles.length === 0 && !loading ? <div className="empty-state"><span className="empty-icon">↗</span><h3>{hasFilters ? 'No matches on this route.' : 'The showroom is being prepared.'}</h3><p>{hasFilters ? 'Try a wider search or clear the filters to see the full selection.' : 'Check back soon, or ask an inventory admin to add the first vehicle.'}</p>{hasFilters && <button className="button button-outline" onClick={() => setFilters(emptyFilters)}>Clear filters</button>}</div> : isAdmin ? <div className="inventory-table"><div className="inventory-table-head" aria-hidden="true"><span>Vehicle</span><span>Category</span><span>Availability</span><span>Listed price</span><span>Actions</span></div><div className="inventory-rows">{vehicles.map((vehicle) => <article className="inventory-row" key={vehicle.id}>
+          <div className="inventory-row-name"><span className="row-monogram" aria-hidden="true">{vehicle.make.charAt(0)}</span><div><h3>{vehicle.make} {vehicle.model}</h3><small>Updated {new Date(vehicle.updatedAt).toLocaleDateString('en-IN')}</small></div></div>
+          <span className="inventory-row-category">{vehicle.category}</span>
+          <span className={`inventory-row-stock ${vehicle.quantity === 0 ? 'is-empty' : vehicle.quantity === 1 ? 'is-low' : ''}`}><strong>{String(vehicle.quantity).padStart(2, '0')}</strong><small>{vehicle.quantity === 0 ? 'Out of stock' : vehicle.quantity === 1 ? 'One left' : 'In stock'}</small></span>
+          <strong className="inventory-row-price">{rupees(vehicle.price)}</strong>
+          <div className="inventory-row-actions"><button className="button button-primary" onClick={() => open('restock', vehicle)} aria-label={`Restock ${vehicle.make} ${vehicle.model}`}>Restock</button><button className="button button-outline" onClick={() => open('edit', vehicle)} aria-label={`Edit ${vehicle.make} ${vehicle.model}`}>Edit</button><button className="row-text-action" onClick={() => open('history', vehicle)} aria-label={`Stock history for ${vehicle.make} ${vehicle.model}`}>History</button><button className="row-text-action row-delete" onClick={() => open('delete', vehicle)} aria-label={`Remove ${vehicle.make} ${vehicle.model}`}>Remove</button></div>
+        </article>)}</div></div> : <div className="vehicle-grid grid">{vehicles.map((vehicle) => <article className="vehicle-card" key={vehicle.id}>
           <div className="card-art-wrap"><VehicleArt vehicle={vehicle} /></div>
-          <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'ONLY 1 LEFT' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions">{isAdmin ? <><button className="button button-primary" onClick={() => open('restock', vehicle)}>Restock <span aria-hidden="true">+</span></button><button className="button button-outline manage-button" onClick={() => open('edit', vehicle)}>Edit details</button></> : <button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button>}</div>{isAdmin && <div className="admin-card-actions"><button onClick={() => open('history', vehicle)}>Stock history</button><button className="danger-link" onClick={() => open('delete', vehicle)}>Remove</button></div>}</div>
+          <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'ONLY 1 LEFT' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions"><button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button></div></div>
         </article>)}</div>}
       </section>
     </main>
