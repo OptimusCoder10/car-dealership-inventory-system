@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+*.local.md
+playwright-report/
+test-results/
+
+# Source assignment material stays outside this repository.
+/AI_Kata_Car_Dealership_Inventory_System_V2.pdf
+/SC Intern JD.docx
