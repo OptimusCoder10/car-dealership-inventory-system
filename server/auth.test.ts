@@ -19,6 +19,12 @@ describe('authentication', () => {
     rmSync(directory, { recursive: true, force: true });
   });
 
+  it('reports readiness when the database is available', async () => {
+    const response = await request(context.app).get('/api/health');
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ status: 'ok' });
+  });
+
   it('registers a buyer, logs them in, and protects vehicle data', async () => {
     const anonymous = await request(context.app).get('/api/vehicles');
     expect(anonymous.status).toBe(401);
