@@ -19,19 +19,19 @@ A purchase records an inventory change and reduces stock by one. **This demo doe
 
 Captured from the running app with seeded demo inventory and disposable preview accounts. The receipt shows a test purchase; no payment was taken.
 
-![Sign-in screen](docs/screenshots/sign-in.jpg)
+![Sign-in screen](docs/screenshots/sign-in-accent.jpg)
 
-![Inventory overview](docs/screenshots/inventory-overview.jpg)
+![Inventory overview](docs/screenshots/inventory-overview-accent.jpg)
 
-![Buyer overview with live availability and starting price](docs/screenshots/buyer-overview.jpg)
+![Buyer overview with live availability and starting price](docs/screenshots/buyer-overview-accent.jpg)
 
-![Admin stock ledger with restock and history actions](docs/screenshots/stock-ledger.jpg)
+![Admin stock ledger with restock and history actions](docs/screenshots/stock-ledger-accent.jpg)
 
-![Buyer vehicle cards](docs/screenshots/buyer-cards.jpg)
+![Buyer vehicle cards](docs/screenshots/buyer-cards-accent.jpg)
 
-![Sold-out vehicle with purchase disabled](docs/screenshots/sold-out-state.jpg)
+![Sold-out vehicle with purchase disabled](docs/screenshots/sold-out-state-accent.jpg)
 
-![Purchase confirmation](docs/screenshots/purchase-confirmed.jpg)
+![Purchase confirmation](docs/screenshots/purchase-confirmed-accent.jpg)
 
 ## Run locally
 
