@@ -367,3 +367,15 @@ The merge and push to `main` succeeded, and the build and tests passed on the me
 GitHub is showing the new README text but still rendering the older images. The screenshot files were replaced under the same names, so I’ll give the refreshed images new filenames and update the README links to make GitHub load the new versions.
 ~~~
 
+### Assistant
+
+~~~text
+GitHub now renders the refreshed sign-in image with the apricot button and the updated inventory image. All seven README links point to the new captures. The contributor sidebar has also caught up and shows only your account and `@codex`.
+~~~
+
+### Assistant
+
+~~~text
+Updated the screenshots in the default-branch [README](https://github.com/OptimusCoder10/car-dealership-inventory-system#screenshots). GitHub now renders the refreshed sign-in and inventory images, and all seven links point to the new captures. The merged app builds and all 10 tests pass. The contributor sidebar also now shows only you and `@codex`.
+~~~
+
