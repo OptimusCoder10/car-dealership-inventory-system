@@ -23,7 +23,7 @@ A purchase records an inventory change and reduces stock by one. **This demo doe
 
 ![Buyer overview with live availability and starting price](docs/screenshots/buyer-overview.jpg)
 
-![Vehicle cards with stock state and admin actions](docs/screenshots/vehicle-cards.jpg)
+![Admin stock ledger with restock and history actions](docs/screenshots/stock-ledger.jpg)
 
 ![Buyer vehicle cards](docs/screenshots/buyer-cards.jpg)
 
@@ -106,8 +106,9 @@ The stock history and guarded final-unit purchase are deliberately practical add
 
 ### Design choices
 
-- The inventory summary and search sit near the top so a buyer or employee can get to the current stock quickly. The buyer sees the lowest price among vehicles actually in stock; the admin sees the listed value of available units.
-- The same card answers different questions by role. Buyers see an available purchase action or a clear unavailable state. Admins see restock and edit first, with stock history and removal as separate decisions.
+- The header places the Drivewell mark near the left edge and account controls near the right edge, leaving the center clear at wide widths. The palette follows the supplied Midnight Blue (`#1C2E4A`), Dusty Blue (`#52677D`), Ivory (`#BDC4D4`), and Deep Navy (`#0F1A2B`) reference; white is used only to lift reading surfaces and text.
+- The buyer showroom and admin stock desk have different layouts because their jobs are different. Buyers see a featured car with the lowest in-stock price and browse horizontal vehicle cards. Admins get a compact stock ledger, live totals, and a restock queue for cars with zero or one unit left.
+- Search remains available in both views. Sold-out listings stay visible to buyers with the purchase action disabled; admins can restock, edit, trace stock history, or remove a listing from the ledger.
 - Category-based illustrations give the collection character without implying that they are photos of the exact listed cars. Stock counts and prices remain text rather than information carried only by color or decoration.
 - The language stays honest: a purchase records stock and a receipt in this demo, and the confirmation says no payment is taken.
 
@@ -115,6 +116,6 @@ The stock history and guarded final-unit purchase are deliberately practical add
 
 I used **OpenAI Codex (GPT-6)** extensively as a development partner for this assignment. I supplied the assignment, job description, deadline, privacy constraints, and a direction to build something distinctive and human-centered. Codex helped map requirements, draft tests and implementation, design the original interface, debug the browser workflow, and write documentation. The Git commits that contain AI-assisted work carry a `Co-authored-by` trailer.
 
-The tests and browser review were important checks on the generated work. They exposed details that needed correction, including totals that initially followed the filtered list, purchase copy that could imply payment was taken, and an adventure vehicle drawn with a sedan silhouette. Those were changed before submission. AI made it possible to cover the full stack quickly, but it did not remove the need to check behavior, state the limits clearly, and understand the tradeoffs. I would explain the SQLite choice, role model, conditional purchase update, test history, and UI decisions in an interview.
+The tests and browser review were important checks on the generated work. They exposed details that needed correction, including totals that initially followed the filtered list, purchase copy that could imply payment was taken, and an adventure vehicle drawn with a sedan silhouette. The first UI pass still looked too similar to the original; after feedback, I gave buyers and admins separate visual workflows. AI made it possible to cover the full stack quickly, but it did not remove the need to check behavior, state the limits clearly, and understand the tradeoffs. I would explain the SQLite choice, role model, conditional purchase update, test history, and UI decisions in an interview.
 
 The required raw AI conversation record or public chat link is in [PROMPTS.md](PROMPTS.md). The assignment PDF and job description stay outside this repository; the local handover note is Git ignored.
