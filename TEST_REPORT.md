@@ -18,6 +18,8 @@ The suite checks buyer registration and login, configured admin password changes
 
 Manual browser checks covered admin sign-in, make filtering, restocking, the receipt flow, and a disabled purchase button for zero stock. The October 24 redesign was reviewed in the browser with a disposable demo database: the new sign-in, admin stock desk and restock queue, buyer showroom and horizontal cards, a make filter narrowing nine vehicles to one sold-out listing, and a purchase receipt that reduced the demo vehicle's stock from five to four. The refreshed screenshots in `docs/screenshots/` show these rendered desktop states. The browser review did not include a narrow viewport; responsive layout rules were reviewed in the stylesheets. The API suite (10/10) and TypeScript/production build passed again after the redesign.
 
+On **25 October 2026**, the header alignment and four-color blue palette were checked in the browser with a separate disposable database. Admin and buyer overviews, inventory rows, vehicle cards, the sold-out state, and a demo receipt were inspected. Screenshots were refreshed. The API suite passed 10/10; the TypeScript check and production build also passed after this visual change.
+
 Reproduce the report with:
 
 ```bash

@@ -34,7 +34,7 @@ function Logo({ light = false }: { light?: boolean }) {
 }
 
 function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: boolean }) {
-  const colors = ['#476a80', '#a8755a', '#718472', '#6b688f', '#b99153', '#51626c'];
+  const colors = ['#52677d', '#1c2e4a', '#52677d', '#0f1a2b'];
   const index = [...vehicle.model].reduce((sum, character) => sum + character.charCodeAt(0), 0) % colors.length;
   const color = colors[index];
   const category = vehicle.category.toLowerCase();
@@ -56,19 +56,19 @@ function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: bool
     <div className="art-orbit art-orbit-one" /><div className="art-orbit art-orbit-two" />
     <svg viewBox="0 0 520 235" role="presentation">
       <defs>
-        <linearGradient id={`body-${artId}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor={color} /><stop offset="1" stopColor="#263646" /></linearGradient>
-        <linearGradient id={`glass-${artId}`} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#d3e2e9" /><stop offset="1" stopColor="#8ea7b5" /></linearGradient>
+        <linearGradient id={`body-${artId}`} x1="0" x2="1" y1="0" y2="1"><stop stopColor={color} /><stop offset="1" stopColor="#0f1a2b" /></linearGradient>
+        <linearGradient id={`glass-${artId}`} x1="0" x2="0" y1="0" y2="1"><stop stopColor="#bdc4d4" /><stop offset="1" stopColor="#52677d" /></linearGradient>
       </defs>
-      <ellipse cx="262" cy="199" rx="210" ry="18" fill="#66757d" opacity=".14" />
+      <ellipse cx="262" cy="199" rx="210" ry="18" fill="#0f1a2b" opacity=".14" />
       <path d={bodies[shape]} fill={`url(#body-${artId})`} />
       <path d={windows[shape]} fill={`url(#glass-${artId})`} />
-      <path d={shape === 'compact' ? 'M291 89 L302 89 L302 120 L291 120Z' : shape === 'suv' ? 'M288 77 L299 77 L299 117 L288 117Z' : 'M294 79 L305 79 L305 117 L294 117Z'} fill="#344a59" opacity=".7" />
-      <path d="M99 136 L151 127 M407 126 L448 135" fill="none" stroke="#d5e0df" strokeWidth="4" opacity=".45" />
-      <path d="M72 164 L106 164 M444 162 L469 162" stroke="#f2cf8b" strokeWidth="8" strokeLinecap="round" />
-      <path d="M75 187 L461 187" stroke="#1b2936" strokeWidth="6" opacity=".6" />
-      <circle cx="151" cy="187" r="31" fill="#1d2932" /><circle cx="151" cy="187" r="19" fill="#c6cdd0" /><circle cx="151" cy="187" r="10" fill="#63727b" />
-      <circle cx="389" cy="187" r="31" fill="#1d2932" /><circle cx="389" cy="187" r="19" fill="#c6cdd0" /><circle cx="389" cy="187" r="10" fill="#63727b" />
-      <path d="M167 135 L382 135" stroke="#e8eded" strokeWidth="2" opacity=".45" />
+      <path d={shape === 'compact' ? 'M291 89 L302 89 L302 120 L291 120Z' : shape === 'suv' ? 'M288 77 L299 77 L299 117 L288 117Z' : 'M294 79 L305 79 L305 117 L294 117Z'} fill="#1c2e4a" opacity=".7" />
+      <path d="M99 136 L151 127 M407 126 L448 135" fill="none" stroke="#bdc4d4" strokeWidth="4" opacity=".45" />
+      <path d="M72 164 L106 164 M444 162 L469 162" stroke="#bdc4d4" strokeWidth="8" strokeLinecap="round" />
+      <path d="M75 187 L461 187" stroke="#0f1a2b" strokeWidth="6" opacity=".6" />
+      <circle cx="151" cy="187" r="31" fill="#0f1a2b" /><circle cx="151" cy="187" r="19" fill="#bdc4d4" /><circle cx="151" cy="187" r="10" fill="#52677d" />
+      <circle cx="389" cy="187" r="31" fill="#0f1a2b" /><circle cx="389" cy="187" r="19" fill="#bdc4d4" /><circle cx="389" cy="187" r="10" fill="#52677d" />
+      <path d="M167 135 L382 135" stroke="#bdc4d4" strokeWidth="2" opacity=".45" />
     </svg>
     <span className="art-caption">{vehicle.category.toUpperCase()} / DRIVEWELL</span>
   </div>;

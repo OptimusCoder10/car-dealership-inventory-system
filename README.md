@@ -106,6 +106,7 @@ The stock history and guarded final-unit purchase are deliberately practical add
 
 ### Design choices
 
+- The header places the Drivewell mark near the left edge and account controls near the right edge, leaving the center clear at wide widths. The palette follows the supplied Midnight Blue (`#1C2E4A`), Dusty Blue (`#52677D`), Ivory (`#BDC4D4`), and Deep Navy (`#0F1A2B`) reference; white is used only to lift reading surfaces and text.
 - The buyer showroom and admin stock desk have different layouts because their jobs are different. Buyers see a featured car with the lowest in-stock price and browse horizontal vehicle cards. Admins get a compact stock ledger, live totals, and a restock queue for cars with zero or one unit left.
 - Search remains available in both views. Sold-out listings stay visible to buyers with the purchase action disabled; admins can restock, edit, trace stock history, or remove a listing from the ledger.
 - Category-based illustrations give the collection character without implying that they are photos of the exact listed cars. Stock counts and prices remain text rather than information carried only by color or decoration.
