@@ -291,3 +291,41 @@ The admin screen now uses the supplied blue palette, and the header groups sit n
 Both screens look consistent with the new palette. The buyer cards, sold-out state, and receipt also render clearly, and the screenshots are refreshed. I’m updating the design notes and running the final checks.
 ~~~
 
+## Accent and screenshot follow-up — 2026-10-25
+
+### User
+
+~~~text
+also no need to follow the template strictly you can add some relevant and good looking colors at some places/sections and also update the screenshots in the readme as well
+~~~
+
+### Assistant
+
+~~~text
+I’ll add a few restrained accent colors where they help distinguish actions and status, then capture fresh README screenshots from the updated interface. I’ll check the current branch and existing design first.
+~~~
+
+### Assistant
+
+~~~text
+The current version uses the four reference colors almost everywhere, so stock warnings and primary actions blend into the surrounding panels. I’m keeping the navy and blue structure while adding a small warm accent for actions and a clearer set of colors for availability.
+~~~
+
+### Assistant
+
+~~~text
+The updated views look coherent in the browser: the warm action color draws the eye, while teal marks available stock and the sand panel separates the restock queue. I’m refreshing the screenshots now using a disposable preview account and database.
+~~~
+
+### Assistant
+
+~~~text
+The seven README images are refreshed, including the low-stock queue, a sold-out listing, and the test receipt. The production build and all 10 tests pass. I’m finishing the documentation and privacy check, then I’ll commit and push the design branch.
+~~~
+
+### Assistant
+
+~~~text
+Done. I kept the navy and blue foundation and added apricot for primary actions, teal for available stock, and amber and rose for low or empty stock. Vehicle artwork now has distinct body colors. I refreshed all seven README screenshots using disposable preview data and updated the design notes. The production build and all 10 tests pass. The changes are pushed to `design/drivewell-ui-refinement`.
+~~~
+

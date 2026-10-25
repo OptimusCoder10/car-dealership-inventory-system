@@ -34,11 +34,9 @@ function Logo({ light = false }: { light?: boolean }) {
 }
 
 function VehicleArt({ vehicle, large = false }: { vehicle: Vehicle; large?: boolean }) {
-  const colors = ['#52677d', '#1c2e4a', '#52677d', '#0f1a2b'];
-  const index = [...vehicle.model].reduce((sum, character) => sum + character.charCodeAt(0), 0) % colors.length;
-  const color = colors[index];
   const category = vehicle.category.toLowerCase();
   const shape = category.includes('suv') || category.includes('adventure') ? 'suv' : category.includes('family') ? 'mpv' : category.includes('electric') ? 'compact' : 'sedan';
+  const color = { suv: '#52677d', mpv: '#b66d51', compact: '#39877f', sedan: '#b75f45' }[shape];
   const artId = useId().replace(/:/g, '');
   const bodies = {
     sedan: 'M67 145 Q76 127 112 124 L159 119 Q182 75 230 69 L338 69 Q386 74 410 119 L453 127 Q473 132 480 148 L477 179 Q474 188 463 189 L69 189 Q56 185 56 175 L59 156 Q60 149 67 145Z',
@@ -308,7 +306,7 @@ function App() {
       </section>}
 
       <section className="content-wrap" id="inventory">
-        {isAdmin && lowStockVehicles.length > 0 && <section className="attention-section" aria-label="Vehicles needing attention"><div className="attention-intro"><h2>Restock queue</h2><p>Zero or one unit remaining. Take action before a buyer reaches an empty listing.</p></div><div className="attention-list">{lowStockVehicles.map((vehicle) => <div className="attention-item" key={vehicle.id}><span className="attention-quantity">{vehicle.quantity === 0 ? 'OUT' : '01'}</span><span><strong>{vehicle.make} {vehicle.model}</strong><small>{vehicle.quantity === 0 ? 'Out of stock' : 'Only one left'}</small></span><button onClick={() => open('restock', vehicle)} aria-label={`Restock ${vehicle.make} ${vehicle.model}`}>Restock <span aria-hidden="true">↗</span></button></div>)}</div></section>}
+        {isAdmin && lowStockVehicles.length > 0 && <section className="attention-section" aria-label="Vehicles needing attention"><div className="attention-intro"><h2>Restock queue</h2><p>Zero or one unit remaining. Take action before a buyer reaches an empty listing.</p></div><div className="attention-list">{lowStockVehicles.map((vehicle) => <div className="attention-item" key={vehicle.id}><span className={`attention-quantity ${vehicle.quantity === 0 ? 'is-empty' : ''}`}>{vehicle.quantity === 0 ? 'OUT' : '01'}</span><span><strong>{vehicle.make} {vehicle.model}</strong><small>{vehicle.quantity === 0 ? 'Out of stock' : 'Only one left'}</small></span><button onClick={() => open('restock', vehicle)} aria-label={`Restock ${vehicle.make} ${vehicle.model}`}>Restock <span aria-hidden="true">↗</span></button></div>)}</div></section>}
         <div className="inventory-heading"><div><h2>{isAdmin ? 'Inventory records' : 'The collection'}<span className="heading-count">{vehicles.length}</span></h2><p>{isAdmin ? 'Search, correct, and trace every vehicle in one place.' : 'Browse what is here, including vehicles currently sold out.'}</p></div>{isAdmin && <button className="button button-primary add-button" onClick={() => open('add')}>+ Add vehicle</button>}</div>
         <div className="filters" aria-label="Vehicle filters">
           <label>MAKE<input value={filters.make} onChange={(event) => setFilters({ ...filters, make: event.target.value })} placeholder="Search make" /></label>
