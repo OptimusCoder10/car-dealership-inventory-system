@@ -1,0 +1,14 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+node_modules
+dist
+coverage
+data
+docs/screenshots
+PROJECT_NOTES.local.md
+*.db
+*.db-shm
+*.db-wal

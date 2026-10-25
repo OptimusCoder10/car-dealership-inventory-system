@@ -61,6 +61,17 @@ pnpm start
 
 Open **http://localhost:3001**. The Express server serves the built SPA and API together. A production host needs persistent disk for the SQLite file and environment variables for `JWT_SECRET`, admin credentials, and optionally `PORT`.
 
+### Deploy with persistent SQLite
+
+The root `Dockerfile` builds the React app and runs the Express API in one service. On a container host that supports a persistent volume:
+
+1. Build from this repository's `main` branch using the Dockerfile. Expose the app's HTTP port (default `3001`, or set `PORT` to the host's assigned port).
+2. Attach one persistent volume at `/data` and set `DATABASE_PATH=/data/inventory.db`. This keeps the SQLite file and its WAL files across restarts and deploys. Run a single app instance against that volume.
+3. Set private runtime variables: a new random `JWT_SECRET` of at least 24 characters, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and optionally `ADMIN_NAME`. Set `SEED_DEMO=true` to load nine illustrative vehicles only if the database is empty. Do not publish these credentials or reuse the local `.env` password.
+4. Configure an HTTP health check at `/api/health`. Once the host provides a public domain, verify sign-in, registration, inventory, and a restart before sharing the link.
+
+A host with only temporary filesystem storage will lose users and inventory when it restarts, so its default storage is unsuitable for this app. The app records inventory purchases only; it takes no payment.
+
 ### Run tests
 
 ```bash
@@ -79,6 +90,7 @@ Send the token from registration or login as `Authorization: Bearer <token>`. Al
 | --- | --- | --- |
 | POST | `/api/auth/register` | Create a buyer account |
 | POST | `/api/auth/login` | Sign in |
+| GET | `/api/health` | Confirm the API can read its database |
 | GET | `/api/auth/me` | Check the current session |
 | GET | `/api/vehicles` | List active vehicles, including zero-stock vehicles |
 | GET | `/api/vehicles/search` | Filter by `make`, `model`, `category`, `minPrice`, `maxPrice` |

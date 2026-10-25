@@ -63,6 +63,11 @@ export function createApp(options: { databasePath: string; jwtSecret: string; ad
   }
   app.use(express.json());
 
+  app.get('/api/health', (_req, res) => {
+    db.prepare('SELECT 1').get();
+    res.json({ status: 'ok' });
+  });
+
   function issueToken(user: UserRow) {
     return jwt.sign({ sub: user.id }, options.jwtSecret, { expiresIn: '12h' });
   }

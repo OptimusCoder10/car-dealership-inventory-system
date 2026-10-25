@@ -379,3 +379,101 @@ GitHub now renders the refreshed sign-in image with the apricot button and the u
 Updated the screenshots in the default-branch [README](https://github.com/OptimusCoder10/car-dealership-inventory-system#screenshots). GitHub now renders the refreshed sign-in and inventory images, and all seven links point to the new captures. The merged app builds and all 10 tests pass. The contributor sidebar also now shows only you and `@codex`.
 ~~~
 
+## Deployment review — 2026-10-25
+
+### User
+
+~~~text
+ok go through the task pdf and tell me if there is something that can be improved, otherwise lets go and deploy it as mentioned
+~~~
+
+### Assistant
+
+~~~text
+I’ll compare the assignment PDF against the current app feature by feature, then fix any submission gaps I find. After that I’ll check the deployment requirements and prepare the app for the platform the brief calls for.
+~~~
+
+### Assistant
+
+~~~text
+The brief treats deployment as an optional extra, and the core features appear to be covered. I found one production issue to fix before deploying: the server starts with a package currently marked for development only. I’m checking the README and hosting requirements next, including how to keep the SQLite data persistent.
+~~~
+
+### Assistant
+
+~~~text
+The PDF requires screenshots, a test report, and the raw AI record; the repo has all three. A live link is optional credit. I’m making the production startup reliable and adding a health check so a host can confirm both the API and database are ready.
+~~~
+
+### User
+
+~~~text
+I dont have any paid service
+~~~
+
+### Assistant
+
+~~~text
+Got it—there’s no paid hosting account. I won’t set up a service that requires charges. I’m checking whether a free host can keep the database reliably; if that needs an account or a larger database change, I’ll give you a clear deployment path rather than publish a demo that loses its data.
+~~~
+
+### User
+
+~~~text
+I’ll connect Railway now
+~~~
+
+### Assistant
+
+~~~text
+Railway has a free plan with a small persistent volume, which fits the app for a short-lived submission demo. I’ve added the readiness check and the tests now pass. I’m validating the deploy package and documenting the exact setup while you connect the GitHub repo.
+~~~
+
+### User
+
+~~~text
+says sign ups are currently disabled, any other thing we can try?
+~~~
+
+### Assistant
+
+~~~text
+Railway signups being disabled blocks that route. I’m checking other free hosts that can keep SQLite data across restarts. The code and deploy package are nearly ready; I’ll use a host only if its storage and signup path are workable.
+~~~
+
+### User
+
+~~~text
+I’ll try Waifly signup
+~~~
+
+### Assistant
+
+~~~text
+The production container passed a full local smoke check: the homepage and health endpoint returned 200, admin login worked, and all nine demo vehicles remained after a restart with the mounted database. I’m updating the deployment notes and waiting for the free host’s signup result before publishing a link.
+~~~
+
+### User
+
+~~~text
+cant there as well, try [https://fly.io/](https://fly.io/)?
+~~~
+
+### Assistant
+
+~~~text
+Waifly is unavailable too. I’ll check Fly.io’s current signup and pricing before using it, since the app needs a persistent volume and you’ve said you don’t have a paid service. The verified deployment bundle is ready in case Fly’s free path works.
+~~~
+
+### Assistant
+
+~~~text
+Fly.io’s new-account trial stops machines after five minutes and provides only two total VM hours, so its link would be unreliable for reviewers. Northflank’s free Sandbox currently advertises an always-on service, no card, and persistent volumes within its free resource allowance. I’m checking that route as the better fit.
+~~~
+
+### Assistant
+
+~~~text
+I found a conflict in Northflank’s own pages: its pricing page says the free Sandbox needs no card, while its billing guide says a payment method is required to create resources. If the signup asks for a card, stop there and tell me; I won’t assume it’s free for your account.
+~~~
+
