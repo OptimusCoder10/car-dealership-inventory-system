@@ -24,6 +24,8 @@ On **25 October 2026**, a deployment readiness endpoint was added test first. It
 
 The production Docker image built successfully with a frozen lockfile and production-only dependencies. A disposable container returned HTTP 200 for both `/` and `/api/health`; admin login and the nine seeded vehicles were confirmed after stopping and restarting it against the same mounted SQLite volume. No external hosting URL has been verified yet.
 
+On **25 October 2026**, the buyer-only scroll story was checked in a running Vite preview at desktop and 390px phone widths. The collection, filters, and purchase actions remain before the animated section. The local photo loaded, its illustrative label and credit were visible, and the three steps and return link remained readable on the phone. The component also has a reduced-motion path that omits its transforms. The TypeScript check and production build passed; the API suite passed **11/11**. The first sandboxed test attempt could not bind to loopback (`EPERM`), so the passing run used local loopback permission.
+
 Reproduce the report with:
 
 ```bash

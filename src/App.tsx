@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { ShowroomScrollStory } from '@/components/ShowroomScrollStory';
 
 type User = { id: string; name: string; email: string; role: 'buyer' | 'admin' };
 type Session = { user: User; token: string };
@@ -329,6 +330,7 @@ function App() {
           <div className="card-body"><div className="card-meta"><span>{vehicle.category.toUpperCase()}</span><span className={`stock-pill ${vehicle.quantity === 0 ? 'sold-out' : vehicle.quantity === 1 ? 'low-stock' : ''}`}>{vehicle.quantity === 0 ? 'OUT OF STOCK' : vehicle.quantity === 1 ? 'ONLY 1 LEFT' : `${vehicle.quantity} IN STOCK`}</span></div><h3>{vehicle.make} <span>{vehicle.model}</span></h3><div className="card-price"><span>LISTED PRICE</span><strong>{rupees(vehicle.price)}</strong></div><div className="card-actions"><button className="button button-primary purchase-button" disabled={vehicle.quantity === 0} onClick={() => open('purchase', vehicle)}>{vehicle.quantity === 0 ? 'Unavailable' : 'Purchase'} <span aria-hidden="true">↗</span></button></div></div>
         </article>)}</div>}
       </section>
+      {!isAdmin && <ShowroomScrollStory />}
     </main>
     <footer className="site-footer"><Logo light /><span>Clarity in every choice. Care in every detail.</span><small>DRIVEWELL © {new Date().getFullYear()}</small></footer>
 

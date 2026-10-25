@@ -2,7 +2,7 @@
 
 A full-stack car dealership inventory that makes stock status easy to understand and safe to change. Buyers can register, search, and record a purchase. Inventory admins can manage vehicles, restock them, and inspect the stock history behind each number.
 
-The app uses **React, HTML5, CSS3, and Tailwind CSS** on the frontend, with a **Node.js/TypeScript Express API** and persistent **SQLite** database. The visual design and car illustrations were created for this project; no UI code or assets were copied from another repository.
+The app uses **React, HTML5, CSS3, and Tailwind CSS** on the frontend, with a **Node.js/TypeScript Express API** and persistent **SQLite** database. The visual design and car illustrations were created for this project. A credited Unsplash photo appears only in the buyer's scroll story; it does not depict a listed vehicle.
 
 ## What you can do
 
@@ -28,6 +28,8 @@ Captured from the running app with seeded demo inventory and disposable preview 
 ![Admin stock ledger with restock and history actions](docs/screenshots/stock-ledger-accent.jpg)
 
 ![Buyer vehicle cards](docs/screenshots/buyer-cards-accent.jpg)
+
+![Buyer scroll story](docs/screenshots/buyer-scroll-story.jpg)
 
 ![Sold-out vehicle with purchase disabled](docs/screenshots/sold-out-state-accent.jpg)
 
@@ -125,6 +127,13 @@ The stock history and guarded final-unit purchase are deliberately practical add
 - Search remains available in both views. Sold-out listings stay visible to buyers with the purchase action disabled; admins can restock, edit, trace stock history, or remove a listing from the ledger.
 - Category-based illustrations give the collection character without implying that they are photos of the exact listed cars. Stock counts and prices remain text rather than information carried only by color or decoration.
 - The language stays honest: a purchase records stock and a receipt in this demo, and the confirmation says no payment is taken.
+- After the buyer's collection, a restrained scroll animation shows a three-step path from browsing to a decision. It respects reduced-motion settings and keeps search and purchase controls above it. The photo is marked illustrative so it cannot be mistaken for an inventory listing.
+
+### UI component setup
+
+This Vite app already has TypeScript and Tailwind CSS. Shared UI components live in `src/components/ui`, with `@/` mapped to `src` in the TypeScript and Vite configurations. The scroll component is at `src/components/ui/container-scroll-animation.tsx` and uses `framer-motion`; its Drivewell example is at `src/components/ShowroomScrollStory.tsx`. Vite uses a normal `<img>` for the local photo rather than Next.js `Image`.
+
+The `src/components/ui` folder is the equivalent of `/components/ui` in a source-root Vite project. Keeping reusable components there makes the `@/components/ui/...` imports in examples and the shadcn CLI's default UI alias resolve to one place. Copy-pasted components do not need `components.json`; if you later want to install registry components with the CLI, run `pnpm dlx shadcn@latest init` from this repository and select the existing `src/components/ui` path. The project's base styles are in `src/styles.css`, followed by layout rules in `src/redesign.css` and palette rules in `src/palette.css`.
 
 ## My AI Usage
 

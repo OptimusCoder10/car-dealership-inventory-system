@@ -1,0 +1,2 @@
+# Preserve the raw prompt record, including whitespace in user messages.
+PROMPTS.md -whitespace
